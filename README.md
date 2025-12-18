@@ -192,3 +192,36 @@ curl http://localhost:3000/trpc/auth.me \
 ## License
 
 ISC
+
+## Frontend Development
+
+### Start Frontend Development Server
+
+```bash
+# In a separate terminal
+npm run dev:client
+```
+
+The frontend will be available at `http://localhost:5173`.
+
+### Pages
+
+- **Landing** (`/`) - Homepage with call-to-action buttons
+- **Login** (`/login`) - User login form
+- **Register** (`/register`) - User registration form
+- **Dashboard** (`/dashboard`) - Protected user profile page
+
+### Full Development Setup
+
+```bash
+# Terminal 1 - Start PostgreSQL
+docker-compose up
+
+# Terminal 2 - Start Backend API
+npm run dev
+
+# Terminal 3 - Start Frontend
+npm run dev:client
+```
+
+Then visit `http://localhost:5173` to see the application.
