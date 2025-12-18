@@ -1,18 +1,18 @@
-import { router, publicProcedure } from '../trpc';
-import { z } from 'zod';
-import { db } from '../db';
-import { users } from '../db/schema';
-import { eq } from 'drizzle-orm';
-import { hashPassword, verifyPassword, generateToken } from '../utils/auth';
-import { TRPCError } from '@trpc/server';
+import { router, publicProcedure } from "../trpc";
+import { z } from "zod";
+import { db } from "../db";
+import { users } from "../db/schema";
+import { eq } from "drizzle-orm";
+import { hashPassword, verifyPassword, generateToken } from "../utils/auth";
+import { TRPCError } from "@trpc/server";
 
 export const authRouter = router({
   register: publicProcedure
     .input(
       z.object({
-        email: z.string().email(),
+        email: z.email(),
         password: z.string().min(6),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       const existingUser = await db.query.users.findFirst({
@@ -21,8 +21,8 @@ export const authRouter = router({
 
       if (existingUser) {
         throw new TRPCError({
-          code: 'CONFLICT',
-          message: 'Email already registered',
+          code: "CONFLICT",
+          message: "Email already registered",
         });
       }
 
@@ -51,9 +51,9 @@ export const authRouter = router({
   login: publicProcedure
     .input(
       z.object({
-        email: z.string().email(),
+        email: z.email(),
         password: z.string(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       const user = await db.query.users.findFirst({
@@ -62,17 +62,20 @@ export const authRouter = router({
 
       if (!user) {
         throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'Invalid email or password',
+          code: "UNAUTHORIZED",
+          message: "Invalid email or password",
         });
       }
 
-      const isValidPassword = await verifyPassword(input.password, user.password);
+      const isValidPassword = await verifyPassword(
+        input.password,
+        user.password,
+      );
 
       if (!isValidPassword) {
         throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'Invalid email or password',
+          code: "UNAUTHORIZED",
+          message: "Invalid email or password",
         });
       }
 
@@ -91,8 +94,8 @@ export const authRouter = router({
   me: publicProcedure.query(async ({ ctx }) => {
     if (!ctx.userId) {
       throw new TRPCError({
-        code: 'UNAUTHORIZED',
-        message: 'Not authenticated',
+        code: "UNAUTHORIZED",
+        message: "Not authenticated",
       });
     }
 
@@ -102,8 +105,8 @@ export const authRouter = router({
 
     if (!user) {
       throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'User not found',
+        code: "NOT_FOUND",
+        message: "User not found",
       });
     }
 
