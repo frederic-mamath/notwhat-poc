@@ -14,6 +14,7 @@ interface ChannelConfig {
   appId: string;
   token: string;
   channelName: string;
+  uid: number;
 }
 
 export default function ChannelPage() {
@@ -50,6 +51,7 @@ export default function ChannelPage() {
         appId: data.appId,
         token: data.token,
         channelName: data.channel.id.toString(),
+        uid: data.uid,
       });
     },
     onError: (err) => {
@@ -67,10 +69,32 @@ export default function ChannelPage() {
   // Initialize Agora client
   const initializeAgora = async (config: ChannelConfig) => {
     try {
+      console.log('🎥 Initializing Agora with config:', {
+        appId: config.appId,
+        channelName: config.channelName,
+        tokenLength: config.token.length,
+        tokenPreview: config.token.substring(0, 20) + '...',
+      });
+
       // Create client
       const agoraClient = AgoraRTC.createClient({
         mode: "rtc",
         codec: "vp8",
+      });
+
+      console.log('✅ Agora client created');
+
+      // Add error event listener
+      agoraClient.on('connection-state-change', (curState, prevState, reason) => {
+        console.log('🔄 Connection state change:', {
+          from: prevState,
+          to: curState,
+          reason: reason,
+        });
+      });
+
+      agoraClient.on('exception', (event) => {
+        console.error('⚠️ Agora exception:', event);
       });
 
       // Event: Remote user published
@@ -106,13 +130,21 @@ export default function ChannelPage() {
         });
       });
 
-      // Join channel
-      await agoraClient.join(
+      console.log('🔌 Joining Agora channel...');
+      console.log('   - App ID:', config.appId);
+      console.log('   - Channel:', config.channelName);
+      console.log('   - UID:', config.uid);
+      console.log('   - Token (first 30 chars):', config.token.substring(0, 30));
+
+      // Join channel with the same UID that was used to generate the token
+      const assignedUid = await agoraClient.join(
         config.appId,
         config.channelName,
         config.token,
-        null,
+        config.uid, // IMPORTANT: Use the same UID that was used to generate the token
       );
+
+      console.log('✅ Successfully joined Agora channel with UID:', assignedUid);
 
       // Create and publish local tracks
       const videoTrack = await AgoraRTC.createCameraVideoTrack();
@@ -128,7 +160,14 @@ export default function ChannelPage() {
       // Play local video
       videoTrack.play("local-player");
     } catch (err: any) {
-      console.error("Failed to initialize Agora:", err);
+      console.error('❌ Failed to initialize Agora:', err);
+      console.error('❌ Error details:', {
+        name: err.name,
+        code: err.code,
+        message: err.message,
+        data: err.data,
+        stack: err.stack,
+      });
       setError(err.message || "Failed to join channel");
     }
   };

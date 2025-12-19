@@ -62,6 +62,7 @@ export const channelRouter = router({
         channel,
         token,
         appId: getAgoraAppId(),
+        uid: ctx.userId, // Pass the UID to the client
       };
     }),
 
@@ -153,6 +154,7 @@ export const channelRouter = router({
         channel,
         token,
         appId: getAgoraAppId(),
+        uid: ctx.userId, // Pass the UID to the client
       };
     }),
 
