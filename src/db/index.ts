@@ -1,6 +1,6 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { Kysely, PostgresDialect } from 'kysely';
 import { Pool } from 'pg';
-import * as schema from './schema';
+import { Database } from './types';
 
 const pool = new Pool({
   host: 'localhost',
@@ -23,4 +23,8 @@ pool.connect((err, client, release) => {
   }
 });
 
-export const db = drizzle(pool, { schema });
+export const db = new Kysely<Database>({
+  dialect: new PostgresDialect({
+    pool,
+  }),
+});
