@@ -2,7 +2,6 @@ import { useState, FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { trpc } from '../lib/trpc';
 import { setToken } from '../lib/auth';
-import { Button } from '../components/ui/button';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -39,22 +38,22 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-          <p className="text-gray-600">Sign up to get started</p>
+    <div>
+      <div>
+        <div>
+          <h1>Create Account</h1>
+          <p>Sign up to get started</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+          <div>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="email">
               Email
             </label>
             <input
@@ -64,12 +63,11 @@ export default function Register() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="you@example.com"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="password">
               Password
             </label>
             <input
@@ -80,12 +78,11 @@ export default function Register() {
               required
               placeholder="••••••••"
               minLength={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="confirmPassword">
               Confirm Password
             </label>
             <input
@@ -96,22 +93,20 @@ export default function Register() {
               required
               placeholder="••••••••"
               minLength={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          <Button
+          <button
             type="submit"
-            className="w-full"
             disabled={registerMutation.isLoading}
           >
             {registerMutation.isLoading ? 'Creating account...' : 'Create Account'}
-          </Button>
+          </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-600">
+        <div>
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 hover:underline font-medium">
+          <Link to="/login">
             Sign in
           </Link>
         </div>

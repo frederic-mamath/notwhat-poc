@@ -8,11 +8,8 @@ import AgoraRTC, {
 } from 'agora-rtc-sdk-ng';
 import { trpc } from '../../lib/trpc';
 import { isAuthenticated } from '../../lib/auth';
-import { toast } from 'sonner';
-import { Button } from '../../components/ui/button';
 import ParticipantList from '../../components/ParticipantList';
 import NetworkQuality from '../../components/NetworkQuality';
-import { cn } from '../../lib/utils';
 
 interface ChannelConfig {
   appId: string;
@@ -113,7 +110,7 @@ export default function ChannelPage() {
 
         if (mediaType === "video") {
           setRemoteUsers((prev) => new Map(prev).set(user.uid as number, user));
-          toast.success(`User ${user.uid} joined with video`);
+          console.log(`User ${user.uid} joined with video`);
         }
 
         if (mediaType === "audio") {
@@ -139,7 +136,7 @@ export default function ChannelPage() {
           newMap.delete(user.uid as number);
           return newMap;
         });
-        toast.info(`User ${user.uid} left the channel`);
+        console.log(`User ${user.uid} left the channel`);
       });
 
       console.log('🔌 Joining Agora channel...');
@@ -202,7 +199,7 @@ export default function ChannelPage() {
       setLocalAudioTrack(audioTrack);
       setJoined(true);
       
-      toast.success('Successfully joined the channel!');
+      console.log('Successfully joined the channel!');
 
       // Wait for DOM to update, then play local video
       setTimeout(() => {
@@ -231,7 +228,7 @@ export default function ChannelPage() {
         stack: err.stack,
       });
       setError(err.message || "Failed to join channel");
-      toast.error(`Failed to join channel: ${err.message || 'Unknown error'}`);
+      alert(`Failed to join channel: ${err.message || 'Unknown error'}`);
     }
   };
 
@@ -313,7 +310,7 @@ export default function ChannelPage() {
     if (localAudioTrack) {
       await localAudioTrack.setEnabled(!audioMuted);
       setAudioMuted(!audioMuted);
-      toast.success(audioMuted ? 'Microphone unmuted' : 'Microphone muted');
+      console.log(audioMuted ? 'Microphone unmuted' : 'Microphone muted');
     }
   };
 
@@ -322,7 +319,7 @@ export default function ChannelPage() {
     if (localVideoTrack) {
       await localVideoTrack.setEnabled(!videoMuted);
       setVideoMuted(!videoMuted);
-      toast.success(videoMuted ? 'Camera turned on' : 'Camera turned off');
+      console.log(videoMuted ? 'Camera turned on' : 'Camera turned off');
     }
   };
 
@@ -333,7 +330,7 @@ export default function ChannelPage() {
     try {
       if (!isScreenSharing) {
         // Start screen sharing
-        toast.info('Starting screen share...');
+        console.log('Starting screen share...');
         const screenVideoTrack = await AgoraRTC.createScreenVideoTrack({
           encoderConfig: '1080p_1',
         });
@@ -349,7 +346,7 @@ export default function ChannelPage() {
         await client.publish([screenVideoTrack as any]);
         setScreenTrack(screenVideoTrack as any);
         setIsScreenSharing(true);
-        toast.success('Screen sharing started!');
+        console.log('Screen sharing started!');
 
         // Play screen share locally
         setTimeout(() => {
@@ -369,7 +366,7 @@ export default function ChannelPage() {
       }
     } catch (err: any) {
       console.error('Screen share error:', err);
-      toast.error('Failed to share screen: ' + err.message);
+      alert('Failed to share screen: ' + err.message);
     }
   };
 
@@ -396,10 +393,10 @@ export default function ChannelPage() {
         }
       }, 100);
 
-      toast.success('Screen sharing stopped');
+      console.log('Screen sharing stopped');
     } catch (err: any) {
       console.error('Error stopping screen share:', err);
-      toast.error('Failed to stop screen share');
+      alert('Failed to stop screen share');
     }
   };
 
@@ -447,109 +444,94 @@ export default function ChannelPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center flex-col gap-5 bg-gray-900 text-white text-center p-5">
-        <div className="bg-red-100 text-red-700 px-6 py-4 rounded-lg font-medium max-w-lg">{error}</div>
-        <Button onClick={() => navigate("/channels")}>
+      <div>
+        <div>{error}</div>
+        <button onClick={() => navigate("/channels")}>
           Back to Channels
-        </Button>
+        </button>
       </div>
     );
   }
 
   if (!joined) {
     return (
-      <div className="min-h-screen flex items-center justify-center flex-col gap-5 bg-gray-900 text-white text-center p-5">
+      <div>
         <div>Joining channel...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col relative">
-      <div className="p-5 flex justify-between items-center bg-gray-800 text-white">
-        <h2 className="m-0">Live Channel</h2>
+    <div>
+      <div>
+        <h2>Live Channel</h2>
         <NetworkQuality client={client} />
-        <Button variant="secondary" onClick={handleLeave}>
+        <button onClick={handleLeave}>
           Leave Channel
-        </Button>
+        </button>
       </div>
 
-      <div className="flex-1 grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4 p-4 max-h-[calc(100vh-180px)] overflow-y-auto">
-        {/* Remote videos only - show message if no remote users */}
+      <div>
         {Array.from(remoteUsers.entries()).length === 0 ? (
-          <div className="text-white text-center p-10 col-span-full">
+          <div>
             Waiting for other participants to join...
           </div>
         ) : (
           Array.from(remoteUsers.entries()).map(([uid, user]) => (
             <div
               key={uid}
-              className="relative bg-black rounded-xl overflow-hidden aspect-video border border-gray-600"
             >
               <div
                 id={`remote-player-${uid}`}
-                className="w-full h-full"
               ></div>
-              <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1.5 rounded-md text-sm font-medium">User {uid}</div>
+              <div>User {uid}</div>
             </div>
           ))
         )}
       </div>
 
-      {/* Local video - fixed in bottom right corner */}
-      <div className="fixed bottom-[100px] right-5 w-[280px] h-auto bg-black rounded-xl overflow-hidden aspect-video border-3 border-indigo-500 z-[100] shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-        <div id="local-player" className="w-full h-full"></div>
-        <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1.5 rounded-md text-sm font-medium">You</div>
+      <div>
+        <div id="local-player"></div>
+        <div>You</div>
       </div>
 
-      <div className="flex justify-center gap-4 p-5 bg-gray-800">
-        <Button
-          variant={audioMuted ? "destructive" : "secondary"}
-          size="lg"
+      <div>
+        <button
           onClick={toggleAudio}
           title={audioMuted ? "Unmute" : "Mute"}
         >
           {audioMuted ? "🔇" : "🎤"}
-        </Button>
+        </button>
 
-        <Button
-          variant={videoMuted ? "destructive" : "secondary"}
-          size="lg"
+        <button
           onClick={toggleVideo}
           title={videoMuted ? "Turn on camera" : "Turn off camera"}
         >
           {videoMuted ? "📹" : "📷"}
-        </Button>
+        </button>
 
-        <Button
-          variant={isScreenSharing ? "default" : "outline"}
-          size="lg"
+        <button
           onClick={toggleScreenShare}
           title={isScreenSharing ? "Stop sharing screen" : "Share screen"}
         >
           {isScreenSharing ? "🛑" : "🖥️"}
-        </Button>
+        </button>
 
-        <Button
-          variant="outline"
-          size="lg"
+        <button
           onClick={() => setShowParticipants(true)}
           title="Show participants"
         >
           👥 ({Array.from(remoteUsers.values()).length + 1})
-        </Button>
+        </button>
 
-        <Button
-          variant="destructive"
-          size="lg"
+        <button
           onClick={handleLeave}
           title="Leave channel"
         >
           📞
-        </Button>
+        </button>
       </div>
 
-      {/* Participant List Modal */}
       <ParticipantList
         localUserId={channelConfig?.uid || 0}
         remoteUsers={Array.from(remoteUsers.values())}

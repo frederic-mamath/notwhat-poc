@@ -1,5 +1,4 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from '../ui/button';
 
 interface Props {
   children: ReactNode;
@@ -50,18 +49,18 @@ export default class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-          <div className="bg-white rounded-lg shadow-xl p-8 max-w-2xl w-full text-center">
-            <div className="text-6xl mb-4">⚠️</div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Oops! Something went wrong</h1>
-            <p className="text-gray-600 mb-6">
+        <div>
+          <div>
+            <div>⚠️</div>
+            <h1>Oops! Something went wrong</h1>
+            <p>
               {this.state.error?.message || 'An unexpected error occurred'}
             </p>
             
             {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
-              <details className="text-left bg-gray-50 rounded-lg p-4 mb-6 cursor-pointer">
-                <summary className="font-medium text-gray-700 mb-2">Error Details (Development Only)</summary>
-                <pre className="text-xs text-gray-600 overflow-auto max-h-64 bg-white p-4 rounded border border-gray-200">
+              <details>
+                <summary>Error Details (Development Only)</summary>
+                <pre>
                   {this.state.error?.stack}
                   {'\n\n'}
                   {this.state.errorInfo.componentStack}
@@ -69,17 +68,15 @@ export default class ErrorBoundary extends Component<Props, State> {
               </details>
             )}
 
-            <div className="flex gap-4 justify-center">
-              <Button onClick={this.handleReset} variant="default" size="lg">
+            <div>
+              <button onClick={this.handleReset}>
                 Go to Channels
-              </Button>
-              <Button
+              </button>
+              <button
                 onClick={() => window.location.reload()}
-                variant="outline"
-                size="lg"
               >
                 Reload Page
-              </Button>
+              </button>
             </div>
           </div>
         </div>

@@ -2,7 +2,6 @@ import { useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { trpc } from '../../lib/trpc';
 import { isAuthenticated } from '../../lib/auth';
-import { Button } from '../../components/ui/button';
 
 export default function CreateChannelPage() {
   const navigate = useNavigate();
@@ -43,16 +42,16 @@ export default function CreateChannelPage() {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div>
+      <div>
         <h1>Create Live Channel</h1>
         <p>Start a new live video/audio channel</p>
 
-        {error && <div className="bg-red-100 text-red-700 px-3 py-3 rounded-lg mb-5">{error}</div>}
+        {error && <div>{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-5">
-            <label htmlFor="name" className="block mb-2 font-medium text-gray-800">Channel Name</label>
+          <div>
+            <label htmlFor="name">Channel Name</label>
             <input
               type="text"
               id="name"
@@ -62,12 +61,11 @@ export default function CreateChannelPage() {
               required
               minLength={3}
               maxLength={100}
-              className="w-full px-3 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:border-indigo-500"
             />
           </div>
 
-          <div className="mb-5">
-            <label htmlFor="maxParticipants" className="block mb-2 font-medium text-gray-800">Max Participants</label>
+          <div>
+            <label htmlFor="maxParticipants">Max Participants</label>
             <input
               type="number"
               id="maxParticipants"
@@ -75,33 +73,30 @@ export default function CreateChannelPage() {
               onChange={(e) => setMaxParticipants(Number(e.target.value))}
               min={2}
               max={50}
-              className="w-full px-3 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:border-indigo-500"
             />
           </div>
 
-          <div className="mb-5">
-            <label className="flex items-center gap-2 cursor-pointer">
+          <div>
+            <label>
               <input
                 type="checkbox"
                 checked={isPrivate}
                 onChange={(e) => setIsPrivate(e.target.checked)}
-                className="w-auto cursor-pointer"
               />
-              <span className="text-gray-800">Make this channel private</span>
+              <span>Make this channel private</span>
             </label>
           </div>
 
-          <Button
+          <button
             type="submit"
             disabled={createMutation.isPending}
-            className="w-full"
           >
             {createMutation.isPending ? 'Creating...' : 'Create Channel'}
-          </Button>
+          </button>
         </form>
 
-        <div className="text-center mt-5">
-          <a onClick={() => navigate('/channels')} className="text-indigo-500 no-underline cursor-pointer hover:underline">
+        <div>
+          <a onClick={() => navigate('/channels')}>
             ← Back to channels
           </a>
         </div>
