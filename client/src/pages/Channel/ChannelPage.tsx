@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
 import ParticipantList from '../../components/ParticipantList';
 import NetworkQuality from '../../components/NetworkQuality';
-import styles from './ChannelPage.module.scss';
+import { cn } from '../../lib/utils';
 
 interface ChannelConfig {
   appId: string;
@@ -447,70 +447,62 @@ export default function ChannelPage() {
 
   if (error) {
     return (
-      <div className={styles.channelError}>
-        <div className={styles.errorMessage}>{error}</div>
-        <button
-          className="btn btn-primary"
-          onClick={() => navigate("/channels")}
-        >
+      <div className="min-h-screen flex items-center justify-center flex-col gap-5 bg-gray-900 text-white text-center p-5">
+        <div className="bg-red-100 text-red-700 px-6 py-4 rounded-lg font-medium max-w-lg">{error}</div>
+        <Button onClick={() => navigate("/channels")}>
           Back to Channels
-        </button>
+        </Button>
       </div>
     );
   }
 
   if (!joined) {
     return (
-      <div className={styles.channelLoading}>
+      <div className="min-h-screen flex items-center justify-center flex-col gap-5 bg-gray-900 text-white text-center p-5">
         <div>Joining channel...</div>
       </div>
     );
   }
 
   return (
-    <div className={styles.channelPage}>
-      <div className={styles.channelHeader}>
-        <h2>Live Channel</h2>
+    <div className="min-h-screen bg-gray-900 flex flex-col relative">
+      <div className="p-5 flex justify-between items-center bg-gray-800 text-white">
+        <h2 className="m-0">Live Channel</h2>
         <NetworkQuality client={client} />
-        <button className="btn btn-secondary" onClick={handleLeave}>
+        <Button variant="secondary" onClick={handleLeave}>
           Leave Channel
-        </button>
+        </Button>
       </div>
 
-      <div className={styles.videoGrid}>
+      <div className="flex-1 grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4 p-4 max-h-[calc(100vh-180px)] overflow-y-auto">
         {/* Remote videos only - show message if no remote users */}
         {Array.from(remoteUsers.entries()).length === 0 ? (
-          <div style={{ 
-            color: 'white', 
-            textAlign: 'center', 
-            padding: '40px',
-            gridColumn: '1 / -1'
-          }}>
+          <div className="text-white text-center p-10 col-span-full">
             Waiting for other participants to join...
           </div>
         ) : (
           Array.from(remoteUsers.entries()).map(([uid, user]) => (
             <div
               key={uid}
-              className={`${styles.videoContainer} ${styles.remote}`}
+              className="relative bg-black rounded-xl overflow-hidden aspect-video border border-gray-600"
             >
               <div
                 id={`remote-player-${uid}`}
-                className={styles.videoPlayer}
+                className="w-full h-full"
               ></div>
-              <div className={styles.videoLabel}>User {uid}</div>
+              <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1.5 rounded-md text-sm font-medium">User {uid}</div>
             </div>
           ))
         )}
       </div>
 
       {/* Local video - fixed in bottom right corner */}
-      <div className={`${styles.videoContainer} ${styles.local}`}>
-        <div id="local-player" className={styles.videoPlayer}></div>
-        <div className={styles.videoLabel}>You</div>
+      <div className="fixed bottom-[100px] right-5 w-[280px] h-auto bg-black rounded-xl overflow-hidden aspect-video border-3 border-indigo-500 z-[100] shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+        <div id="local-player" className="w-full h-full"></div>
+        <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1.5 rounded-md text-sm font-medium">You</div>
       </div>
 
-      <div className={styles.channelControls}>
+      <div className="flex justify-center gap-4 p-5 bg-gray-800">
         <Button
           variant={audioMuted ? "destructive" : "secondary"}
           size="lg"

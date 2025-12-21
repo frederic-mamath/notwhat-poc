@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { trpc } from '../../lib/trpc';
 import { isAuthenticated, removeToken } from '../../lib/auth';
-import styles from './NavBar.module.scss';
+import { cn } from '../../lib/utils';
 
 export default function NavBar() {
   const location = useLocation();
@@ -18,59 +18,73 @@ export default function NavBar() {
   };
 
   const isActive = (path: string) => {
-    return location.pathname === path ? styles.active : '';
+    return location.pathname === path;
   };
 
   return (
-    <nav className={styles.navbar}>
-      <div className={styles.navbarContainer}>
-        <Link to="/" className={styles.navbarLogo}>
-          <span>🎥</span>
+    <nav className="bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md sticky top-0 z-[1000]">
+      <div className="max-w-screen-xl mx-auto px-5 flex justify-between items-center h-16">
+        <Link to="/" className="flex items-center gap-3 text-white no-underline text-2xl font-bold transition-opacity hover:opacity-90">
+          <span className="text-[28px]">🎥</span>
           NotWhat
         </Link>
 
-        <div className={styles.navbarLinks}>
+        <div className="flex items-center gap-2">
           {authenticated ? (
             <>
-              <Link to="/dashboard" className={`${styles.navLink} ${isActive('/dashboard')}`}>
-                <span>🏠</span>
-                Dashboard
+              <Link 
+                to="/dashboard" 
+                className={cn(
+                  "text-white no-underline px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-1.5 hover:bg-white/15",
+                  isActive('/dashboard') && "bg-white/20"
+                )}
+              >
+                <span className="text-lg">🏠</span>
+                <span className="max-md:hidden">Dashboard</span>
               </Link>
-              <Link to="/channels" className={`${styles.navLink} ${isActive('/channels')}`}>
-                <span>📺</span>
-                Channels
+              <Link 
+                to="/channels" 
+                className={cn(
+                  "text-white no-underline px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-1.5 hover:bg-white/15",
+                  isActive('/channels') && "bg-white/20"
+                )}
+              >
+                <span className="text-lg">📺</span>
+                <span className="max-md:hidden">Channels</span>
               </Link>
               <button 
                 onClick={() => navigate('/create-channel')}
-                className={`${styles.navButton} ${styles.primary}`}
+                className="bg-white text-indigo-500 border-none px-5 py-2.5 rounded-lg font-semibold cursor-pointer transition-all flex items-center gap-1.5 hover:bg-gray-50 hover:shadow-lg hover:-translate-y-px"
               >
-                <span>➕</span>
-                Create
+                <span className="text-lg max-md:hidden">➕</span>
+                <span className="max-md:hidden">Create</span>
+                <span className="md:hidden">➕</span>
               </button>
               
               {user && (
-                <div className={styles.userInfo}>
-                  <div className={styles.userAvatar}>
+                <div className="flex items-center gap-3 px-4 py-2 bg-white/15 rounded-lg text-white font-medium">
+                  <div className="w-8 h-8 rounded-full bg-white text-indigo-500 flex items-center justify-center font-bold">
                     {user.email[0].toUpperCase()}
                   </div>
-                  <span>{user.email}</span>
+                  <span className="max-md:hidden">{user.email}</span>
                 </div>
               )}
 
               <button 
                 onClick={handleLogout}
-                className={styles.navButton}
+                className="bg-white/20 text-white border-none px-5 py-2.5 rounded-lg font-semibold cursor-pointer transition-all flex items-center gap-1.5 hover:bg-white/30 hover:-translate-y-px"
               >
-                <span>🚪</span>
-                Logout
+                <span className="text-lg max-md:hidden">🚪</span>
+                <span className="max-md:hidden">Logout</span>
+                <span className="md:hidden">🚪</span>
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" className={styles.navLink}>
+              <Link to="/login" className="text-white no-underline px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-1.5 hover:bg-white/15">
                 Login
               </Link>
-              <Link to="/register" className={`${styles.navButton} ${styles.primary}`}>
+              <Link to="/register" className="bg-white text-indigo-500 no-underline px-5 py-2.5 rounded-lg font-semibold transition-all hover:bg-gray-50 hover:shadow-lg hover:-translate-y-px">
                 Sign Up
               </Link>
             </>
