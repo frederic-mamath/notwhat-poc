@@ -7,6 +7,7 @@ NoWhat is a full-stack authentication application using a type-safe API architec
 ## Tech Stack
 
 ### Backend
+
 - **Node.js + TypeScript** - Runtime and type safety
 - **Express.js** - HTTP server framework
 - **tRPC** - End-to-end type-safe API layer
@@ -15,6 +16,7 @@ NoWhat is a full-stack authentication application using a type-safe API architec
 - **Docker** - Database containerization
 
 ### Frontend
+
 - **React 18** - UI library
 - **TypeScript** - Type safety
 - **Vite** - Build tool and dev server
@@ -33,26 +35,33 @@ NoWhat is a full-stack authentication application using a type-safe API architec
 **Location**: `src/trpc.ts`, `src/routers/`
 
 **How it works**:
+
 - tRPC provides end-to-end type safety between client and server
 - No code generation needed - types flow automatically from server to client
 - Procedures are defined on the server and consumed type-safely on the client
 
 **Example**:
+
 ```typescript
 // Server (src/routers/auth.ts)
 export const authRouter = router({
   register: publicProcedure
     .input(z.object({ email: z.string().email(), password: z.string().min(6) }))
-    .mutation(async ({ input }) => { /* ... */ }),
+    .mutation(async ({ input }) => {
+      /* ... */
+    }),
 });
 
 // Client (client/src/pages/Register.tsx)
 const registerMutation = trpc.auth.register.useMutation({
-  onSuccess: (data) => { /* data is fully typed! */ }
+  onSuccess: (data) => {
+    /* data is fully typed! */
+  },
 });
 ```
 
 **Benefits**:
+
 - Full type safety from database to UI
 - Automatic API contract validation
 - No REST boilerplate (no controllers, routes, DTOs)
@@ -67,6 +76,7 @@ const registerMutation = trpc.auth.register.useMutation({
 **Location**: `src/db/`
 
 **Structure**:
+
 ```
 src/db/
 ├── schema.ts    # Database schema definitions (single source of truth)
@@ -74,17 +84,19 @@ src/db/
 ```
 
 **How it works**:
+
 - **Schema-first approach**: Define tables in TypeScript
 - **Type inference**: TypeScript types derived from schema
 - **Migration support**: Version-controlled SQL migrations
 - **Type-safe queries**: SQL queries with full TypeScript support
 
 **Example**:
+
 ```typescript
 // Define schema
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  email: varchar('email', { length: 255 }).notNull().unique(),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
   // ...
 });
 
@@ -99,6 +111,7 @@ const user = await db.query.users.findFirst({
 ```
 
 **Benefits**:
+
 - Single source of truth for data structure
 - Type-safe database operations
 - Easy schema evolution with migrations
@@ -113,6 +126,7 @@ const user = await db.query.users.findFirst({
 **Location**: `src/utils/auth.ts`, `src/index.ts` (context creation)
 
 **Flow**:
+
 1. User registers/logs in → Server validates credentials
 2. Server generates JWT token with user ID
 3. Client stores token in localStorage
@@ -120,21 +134,23 @@ const user = await db.query.users.findFirst({
 5. Server validates token and extracts user ID into context
 
 **Security Features**:
+
 - Password hashing with bcrypt (10 rounds)
 - JWT expiration (7 days)
 - Token verification on protected routes
 - Context-based authorization
 
 **Example**:
+
 ```typescript
 // Token generation
 export function generateToken(userId: number): string {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "7d" });
 }
 
 // Context creation (runs on every request)
 const createContext = ({ req }: CreateExpressContextOptions): Context => {
-  const token = req.headers.authorization?.replace('Bearer ', '');
+  const token = req.headers.authorization?.replace("Bearer ", "");
   if (token) {
     const payload = verifyToken(token);
     if (payload) return { userId: payload.userId };
@@ -152,13 +168,14 @@ const createContext = ({ req }: CreateExpressContextOptions): Context => {
 **Location**: `client/src/`
 
 **Structure**:
+
 ```
 client/src/
 ├── pages/           # Page components (route handlers)
-│   ├── Landing.tsx
-│   ├── Login.tsx
-│   ├── Register.tsx
-│   └── Dashboard.tsx
+│   ├── LandingPage.tsx
+│   ├── LoginPage.tsx
+│   ├── RegisterPage.tsx
+│   └── DashboardPage.tsx
 ├── components/      # Reusable UI components (currently minimal)
 ├── lib/             # Utilities and configurations
 │   ├── trpc.ts      # tRPC React client setup
@@ -170,6 +187,7 @@ client/src/
 **Key Patterns**:
 
 #### a) **Provider Pattern** (Composition Root)
+
 ```typescript
 // App.tsx - wraps entire app with necessary providers
 <trpc.Provider client={trpcClient} queryClient={queryClient}>
@@ -182,6 +200,7 @@ client/src/
 ```
 
 #### b) **Hooks Pattern** (State & Side Effects)
+
 - `useState` - Local component state
 - `useNavigate` - Programmatic navigation
 - `useEffect` - Side effects (auth checks, redirects)
@@ -189,6 +208,7 @@ client/src/
 - `trpc.*.useQuery` - Server data fetching (user profile)
 
 #### c) **Controlled Components** (Form Handling)
+
 ```typescript
 const [email, setEmail] = useState('');
 <input value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -201,19 +221,23 @@ const [email, setEmail] = useState('');
 **Pattern**: Local State + Server State Separation
 
 **Server State** (via TanStack Query):
+
 - Managed by React Query through tRPC hooks
 - Automatic caching, refetching, and invalidation
 - Used for: user data, API responses
 
 **Local State** (via useState):
+
 - Managed by React's useState hook
 - Used for: form inputs, UI toggles, temporary data
 
 **Persistent State** (via localStorage):
+
 - JWT token storage
 - Survives page refreshes
 
 **No Global State Library Needed**:
+
 - Server state handled by React Query
 - Authentication state derived from token presence
 - UI state kept local to components
@@ -225,22 +249,25 @@ const [email, setEmail] = useState('');
 **Pattern**: Client-Side Routing with React Router
 
 **Routes**:
+
 - `/` - Landing page (public)
 - `/login` - Login page (public, redirects if authenticated)
 - `/register` - Registration page (public, redirects if authenticated)
 - `/dashboard` - User dashboard (protected, redirects if not authenticated)
 
 **Protection Strategy**:
+
 ```typescript
 // Route protection via useEffect in components
 useEffect(() => {
   if (!isAuthenticated()) {
-    navigate('/login');
+    navigate("/login");
   }
 }, [navigate]);
 ```
 
 **Better Alternative** (not yet implemented):
+
 - Protected Route wrapper component
 - Declarative route protection
 
@@ -249,25 +276,29 @@ useEffect(() => {
 ### 7. **Error Handling Pattern**
 
 **Backend**:
+
 ```typescript
 // tRPC error handling with typed error codes
 throw new TRPCError({
-  code: 'UNAUTHORIZED',  // Typed error codes
-  message: 'Invalid credentials',
+  code: "UNAUTHORIZED", // Typed error codes
+  message: "Invalid credentials",
 });
 
 // Global error handler in Express middleware
 onError: ({ path, error }) => {
   console.error(`ERROR [${path}]:`, error.message);
-}
+};
 ```
 
 **Frontend**:
+
 ```typescript
 // Error handling in mutations
 const mutation = trpc.auth.login.useMutation({
-  onSuccess: (data) => { /* handle success */ },
-  onError: (err) => setError(err.message),  // err is typed!
+  onSuccess: (data) => {
+    /* handle success */
+  },
+  onError: (err) => setError(err.message), // err is typed!
 });
 ```
 
@@ -276,11 +307,13 @@ const mutation = trpc.auth.login.useMutation({
 ### 8. **Middleware Pattern**
 
 **Backend Middleware Chain**:
+
 ```
 Request → CORS → JSON Parser → Logger → tRPC Handler → Response
 ```
 
 **Custom Middleware**:
+
 - `logger` - Request logging with timestamps
 - `createContext` - Auth token validation and context injection
 - `onError` - Error logging and handling
@@ -290,26 +323,31 @@ Request → CORS → JSON Parser → Logger → tRPC Handler → Response
 ## Design Principles Applied
 
 ### 1. **Separation of Concerns**
+
 - **Backend**: Business logic separated into routers
 - **Frontend**: UI separated into pages/components
 - **Data**: Schema definitions isolated in db/schema.ts
 
 ### 2. **Single Responsibility**
+
 - Each router handles one domain (auth)
 - Each page handles one route
 - Utilities focused on single tasks (auth, logging)
 
 ### 3. **DRY (Don't Repeat Yourself)**
+
 - Shared types generated from schema
 - Reusable auth utilities
 - Centralized tRPC client configuration
 
 ### 4. **Type Safety First**
+
 - TypeScript strict mode enabled
 - End-to-end type inference with tRPC
 - Schema-driven type generation with Drizzle
 
 ### 5. **Convention over Configuration**
+
 - Standard project structure
 - Consistent naming conventions
 - Minimal boilerplate
@@ -319,6 +357,7 @@ Request → CORS → JSON Parser → Logger → tRPC Handler → Response
 ## Data Flow Examples
 
 ### Registration Flow
+
 ```
 User Input (Register.tsx)
     ↓
@@ -354,6 +393,7 @@ Navigate to /dashboard
 ```
 
 ### Protected Resource Access Flow
+
 ```
 Component Mount (Dashboard.tsx)
     ↓
@@ -389,6 +429,7 @@ Component renders with data
 ## Database Schema
 
 ### Users Table
+
 ```sql
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
@@ -401,6 +442,7 @@ CREATE TABLE users (
 ```
 
 ### Migration Strategy
+
 - Schema defined in `src/db/schema.ts`
 - Migrations generated with `npm run db:generate`
 - Applied with `npm run db:push` (dev) or `npm run db:migrate` (prod)
@@ -411,6 +453,7 @@ CREATE TABLE users (
 ## Security Considerations
 
 ### Implemented
+
 ✅ Password hashing (bcrypt)
 ✅ JWT token expiration
 ✅ Input validation (Zod schemas)
@@ -419,6 +462,7 @@ CREATE TABLE users (
 ✅ Unique email constraint
 
 ### Not Yet Implemented (Production TODOs)
+
 ⚠️ HTTPS/TLS in production
 ⚠️ Rate limiting
 ⚠️ Refresh tokens
@@ -433,11 +477,13 @@ CREATE TABLE users (
 ## Scalability Considerations
 
 ### Current Architecture (Good for)
+
 - Small to medium applications
 - Monolithic deployment
 - Single database instance
 
 ### Future Improvements
+
 - **Horizontal Scaling**: Add load balancer, multiple app instances
 - **Database**: Connection pooling (already implemented), read replicas
 - **Caching**: Redis for sessions/tokens
@@ -449,6 +495,7 @@ CREATE TABLE users (
 ## Development Workflow
 
 ### Setup
+
 ```bash
 docker-compose up -d          # Start PostgreSQL
 npm run db:push               # Push schema to DB
@@ -459,16 +506,19 @@ npm run dev:client            # Start frontend (port 5173)
 ### Making Changes
 
 #### Adding a new API endpoint:
+
 1. Define procedure in `src/routers/auth.ts` (or new router)
 2. Types automatically available in frontend
 3. Use in component with `trpc.routerName.procedureName.useQuery/useMutation()`
 
 #### Adding a new page:
+
 1. Create component in `client/src/pages/`
 2. Add route in `client/src/App.tsx`
 3. Add navigation links
 
 #### Database changes:
+
 1. Modify schema in `src/db/schema.ts`
 2. Run `npm run db:generate` to create migration
 3. Run `npm run db:push` to apply
@@ -478,11 +528,13 @@ npm run dev:client            # Start frontend (port 5173)
 ## File Organization Philosophy
 
 ### Backend
+
 - **Flat router structure**: All routers in `src/routers/`
 - **Shared utilities**: `src/utils/` for cross-cutting concerns
 - **Database isolation**: All DB code in `src/db/`
 
 ### Frontend
+
 - **Pages by route**: One file per route
 - **Components for reuse**: Shared UI components
 - **Lib for setup**: Configuration and utilities
@@ -492,6 +544,7 @@ npm run dev:client            # Start frontend (port 5173)
 ## Testing Strategy (Not Yet Implemented)
 
 ### Recommended Approach
+
 - **Backend**: Jest + Supertest for API testing
 - **Frontend**: Vitest + React Testing Library
 - **E2E**: Playwright or Cypress
@@ -502,6 +555,7 @@ npm run dev:client            # Start frontend (port 5173)
 ## Deployment Architecture
 
 ### Recommended Production Setup
+
 ```
 [Users] → [CDN/Static Assets] → [React App]
                                       ↓
@@ -513,6 +567,7 @@ npm run dev:client            # Start frontend (port 5173)
 ```
 
 ### Environment Variables by Environment
+
 - **Development**: `.env` (localhost)
 - **Staging**: Environment-specific configuration
 - **Production**: Secrets management (AWS Secrets Manager, etc.)

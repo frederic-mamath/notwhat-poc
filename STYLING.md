@@ -1,90 +1,386 @@
-# Styling Guide
+# Styling Guide - NotWhat
+
+**Last Updated**: December 22, 2024
 
 ## Overview
-This project uses **Tailwind CSS** with **Shadcn/ui** components for all styling. CSS Modules have been completely removed.
 
-## Configuration
+This project uses **Shadcn UI** as its primary design system built on top of **Tailwind CSS v4** to ensure consistency, accessibility, and a modern user interface.
 
-### Tailwind Config
-- Located in: `client/tailwind.config.js`
-- Includes Shadcn theme tokens and custom colors
-- Content paths: `./src/**/*.{ts,tsx}` and `./index.html`
+## Core Philosophy
 
-### PostCSS Config
-- Located in: `client/postcss.config.js`
-- Uses `@tailwindcss/postcss` plugin (v4)
-- Includes `autoprefixer`
+1. **Shadcn First** - Always prefer Shadcn components over custom implementations
+2. **Tailwind for Utilities** - Use Tailwind classes for spacing, layout, and custom styling
+3. **Design Consistency** - Follow the design tokens and color system
+4. **Type Safety** - Full TypeScript support for all components
+5. **Accessibility** - WCAG compliant components by default
 
-### Vite Config
-- Located in: `vite.config.ts`
-- Root set to `./client`
-- **CSS modules explicitly disabled**: `css.modules: false`
+---
+
+## Technology Stack
+
+### UI Framework
+- **Shadcn UI** - Component library ([shadcn/ui](https://ui.shadcn.com/))
+- **Tailwind CSS v4** - Utility-first CSS framework
+- **React 19** - UI rendering
+
+### Styling Dependencies
+```json
+{
+  "tailwindcss": "^4.0.0",
+  "@tailwindcss/postcss": "^4.0.0",
+  "tailwindcss-animate": "^1.0.7",
+  "class-variance-authority": "^0.7.1",
+  "clsx": "^2.1.1",
+  "tailwind-merge": "^3.4.0",
+  "@radix-ui/react-slot": "^1.2.4"
+}
+```
+
+---
+
+## Architecture
+
+### Server & Client Setup
+- **Server**: Express on port 3000 (`npm run dev`)
+- **Client**: Vite dev server on port 5173 (`npm run dev:client`)
+- **Proxy**: Vite proxies `/trpc` requests to server
+
+### File Structure
+```
+client/src/
+├── components/
+│   └── ui/
+│       └── Button/           # Shadcn components
+│           └── Button.tsx
+├── lib/
+│   └── utils.ts             # cn() utility
+├── index.css                # Tailwind imports & design tokens
+└── main.tsx
+```
+
+---
+
+## Design Tokens
+
+### Color System (HSL)
+Defined in `client/src/index.css`:
+
+```css
+@theme {
+  --color-background: 0 0% 100%;
+  --color-foreground: 222.2 84% 4.9%;
+  --color-primary: 222.2 47.4% 11.2%;
+  --color-primary-foreground: 210 40% 98%;
+  --color-secondary: 210 40% 96.1%;
+  --color-secondary-foreground: 222.2 47.4% 11.2%;
+  --color-destructive: 0 84.2% 60.2%;
+  --color-destructive-foreground: 210 40% 98%;
+  --color-accent: 210 40% 96.1%;
+  --color-accent-foreground: 222.2 47.4% 11.2%;
+  --color-border: 214.3 31.8% 91.4%;
+  --color-input: 214.3 31.8% 91.4%;
+  --color-ring: 222.2 84% 4.9%;
+  
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
+}
+```
+
+### Accessing Colors in Tailwind
+```tsx
+<div className="bg-primary text-primary-foreground">Primary</div>
+<div className="bg-secondary text-secondary-foreground">Secondary</div>
+<div className="bg-destructive text-destructive-foreground">Danger</div>
+<div className="border border-border">With Border</div>
+```
+
+---
+
+## Component Guidelines
+
+### 1. Button Component
+
+**Location**: `client/src/components/ui/Button/Button.tsx`
+
+#### Import
+```tsx
+import Button from '@/components/ui/Button';
+```
+
+#### Variants
+| Variant | Use Case | Example |
+|---------|----------|---------|
+| `default` | Primary actions | Submit, Save, Create |
+| `destructive` | Dangerous actions | Delete, Remove, Cancel subscription |
+| `outline` | Secondary actions | Cancel, Back, Skip |
+| `secondary` | Tertiary actions | Edit, Settings |
+| `ghost` | Minimal actions | Navigation, Close |
+| `link` | Text links as buttons | Learn more, Read docs |
+
+#### Sizes
+| Size | Height | Use Case |
+|------|--------|----------|
+| `sm` | h-8 | Compact UIs, tables, cards |
+| `default` | h-9 | Standard buttons |
+| `lg` | h-10 | Hero sections, CTAs |
+| `icon` | h-9 w-9 | Icon-only buttons |
+
+#### Examples
+```tsx
+// Primary action
+<Button>Create Channel</Button>
+
+// Destructive action
+<Button variant="destructive">Delete Account</Button>
+
+// Outline with large size
+<Button variant="outline" size="lg">Cancel</Button>
+
+// Icon button
+<Button variant="ghost" size="icon" title="Settings">
+  <SettingsIcon />
+</Button>
+
+// Disabled state
+<Button disabled>Processing...</Button>
+
+// Full width
+<Button className="w-full">Sign In</Button>
+
+// As a link (using asChild)
+<Button asChild>
+  <a href="/channels">View Channels</a>
+</Button>
+```
+
+### 2. Adding New Shadcn Components
+
+When you need a new component:
+
+1. **Check Shadcn docs**: [ui.shadcn.com](https://ui.shadcn.com/)
+2. **Install required dependencies** (if any):
+   ```bash
+   npm install @radix-ui/react-[component-name]
+   ```
+3. **Create component file**:
+   ```
+   client/src/components/ui/ComponentName/
+   ├── ComponentName.tsx
+   └── index.ts
+   ```
+4. **Use the official Shadcn code** - Copy from their docs
+5. **Update this guide** with usage examples
+
+---
+
+## Utility Classes
+
+### The `cn()` Helper
+
+**Location**: `client/src/lib/utils.ts`
+
+Merges Tailwind classes intelligently, handling conflicts:
+
+```tsx
+import { cn } from '@/lib/utils';
+
+// Merge classes with conditional logic
+<Button 
+  className={cn(
+    "w-full",
+    isLoading && "opacity-50 cursor-not-allowed",
+    isPrimary ? "bg-blue-500" : "bg-gray-500"
+  )}
+>
+  Submit
+</Button>
+```
+
+### Common Patterns
+
+#### Layout
+```tsx
+// Flexbox
+<div className="flex items-center justify-between gap-4">
+  
+// Grid
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+// Container
+<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+```
+
+#### Spacing
+```tsx
+// Padding
+className="p-4"       // All sides
+className="px-6 py-4" // Horizontal & Vertical
+className="pt-8"      // Top only
+
+// Margin
+className="m-4"       // All sides
+className="mx-auto"   // Center horizontally
+className="mt-8 mb-4" // Top & Bottom
+
+// Gap (for flex/grid)
+className="gap-4"
+className="gap-x-6 gap-y-4"
+```
+
+#### Typography
+```tsx
+// Sizes
+className="text-sm"   // 14px
+className="text-base" // 16px
+className="text-lg"   // 18px
+className="text-xl"   // 20px
+className="text-2xl"  // 24px
+
+// Weight
+className="font-normal"   // 400
+className="font-medium"   // 500
+className="font-semibold" // 600
+className="font-bold"     // 700
+```
+
+#### Colors
+```tsx
+// Text colors
+className="text-foreground"
+className="text-muted-foreground"
+className="text-primary"
+className="text-destructive"
+
+// Background colors
+className="bg-background"
+className="bg-primary"
+className="bg-secondary"
+className="bg-accent"
+```
+
+#### Responsive Design
+```tsx
+// Mobile-first approach
+className="text-sm md:text-base lg:text-lg"
+className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+className="hidden md:block"
+```
+
+---
 
 ## Best Practices
 
-### 1. Use Tailwind Utility Classes
+### ✅ DO
+
+- **Use Shadcn components** whenever possible
+- **Use semantic color tokens** (`bg-primary` not `bg-blue-500`)
+- **Use the `cn()` utility** for conditional classes
+- **Follow mobile-first** responsive design
+- **Use consistent spacing** (multiples of 4: 4, 8, 12, 16, 20, 24...)
+- **Add proper accessibility** attributes (`title`, `aria-label`)
+- **Use TypeScript** for all components
+
+### ❌ DON'T
+
+- **Don't create custom buttons** - Use Shadcn Button
+- **Don't use inline styles** - Use Tailwind classes
+- **Don't use arbitrary colors** - Use design tokens
+- **Don't skip accessibility** - Always add labels/titles
+- **Don't mix CSS modules** - Stick to Tailwind
+- **Don't hardcode values** - Use theme variables
+
+---
+
+## Migration Checklist
+
+When creating or updating components:
+
+- [ ] Replace native HTML elements with Shadcn components
+- [ ] Use design tokens for colors (`bg-primary` vs `bg-blue-500`)
+- [ ] Apply proper spacing with Tailwind utilities
+- [ ] Add responsive classes for mobile/tablet/desktop
+- [ ] Include accessibility attributes
+- [ ] Use the `cn()` utility for conditional styling
+- [ ] Test keyboard navigation
+- [ ] Verify dark mode support (if applicable)
+
+---
+
+## Component Library Roadmap
+
+### ✅ Implemented
+- Button (all variants)
+
+### 🎯 Priority Components to Add
+
+1. **Card** - For channel lists, user profiles
+2. **Input** - Form fields
+3. **Dialog** - Modals and confirmations
+4. **Badge** - Status indicators, participant count
+5. **Avatar** - User profile pictures
+6. **Tooltip** - Hover information
+7. **Dropdown Menu** - Settings and options
+8. **Switch/Toggle** - On/off controls
+9. **Skeleton** - Loading states
+10. **Alert** - Important notifications
+
+---
+
+## Resources
+
+- [Shadcn UI Docs](https://ui.shadcn.com/)
+- [Tailwind CSS v4 Docs](https://tailwindcss.com/)
+- [Radix UI Primitives](https://www.radix-ui.com/)
+- [CVA (Class Variance Authority)](https://cva.style/docs)
+
+---
+
+## Examples from Codebase
+
+### NavBar Component Pattern
 ```tsx
-// ✅ Correct
-<div className="flex items-center gap-4 p-4 bg-background">
-  <h1 className="text-2xl font-bold">Title</h1>
+<nav>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-between h-16">
+      <Link to="/" className="flex items-center gap-2">
+        <span className="text-2xl">🎥</span>
+        <span className="text-xl font-bold">NotWhat</span>
+      </Link>
+      
+      <div className="flex items-center gap-4">
+        <Button variant="outline" asChild>
+          <Link to="/login">Login</Link>
+        </Button>
+        <Button asChild>
+          <Link to="/register">Sign Up</Link>
+        </Button>
+      </div>
+    </div>
+  </div>
+</nav>
+```
+
+### Channel Card Pattern
+```tsx
+<div className="bg-card text-card-foreground rounded-lg border border-border p-6 shadow-sm hover:shadow-md transition-shadow">
+  <h3 className="text-xl font-semibold mb-2">{channel.name}</h3>
+  <p className="text-muted-foreground mb-4">
+    {channel.participantCount} / {channel.max_participants} participants
+  </p>
+  <Button className="w-full">Join Channel</Button>
 </div>
 ```
 
-### 2. Use Shadcn Components
-```tsx
-// ✅ Correct
-import { Button } from '@/components/ui/button';
+---
 
-<Button variant="default" size="lg">Click Me</Button>
-```
+## Support
 
-### 3. Use cn() Utility for Conditional Classes
-```tsx
-// ✅ Correct
-import { cn } from '@/lib/utils';
+For questions or issues with styling:
+1. Check this guide first
+2. Refer to Shadcn UI documentation
+3. Check Tailwind CSS documentation
+4. Ask the team
 
-<div className={cn(
-  "base-class",
-  isActive && "active-class",
-  variant === "primary" && "primary-class"
-)}>
-  Content
-</div>
-```
-
-### 4. NO CSS Modules
-```tsx
-// ❌ Wrong - CSS modules are disabled
-import styles from './Component.module.scss';
-
-// ✅ Correct - Use Tailwind directly
-<div className="my-custom-class">
-```
-
-## Component Structure
-
-Components should follow this structure:
-
-```
-ComponentName/
-├── ComponentName.tsx        # Component logic
-└── index.ts                 # Export
-```
-
-## Styling Tokens
-
-All design tokens are defined in `client/src/index.css`:
-- Colors: `--background`, `--foreground`, `--primary`, etc.
-- Spacing: Use Tailwind spacing scale
-- Border radius: `--radius` variable
-
-## Migration Complete
-
-✅ All CSS modules have been removed
-✅ All components use Tailwind CSS
-✅ Shadcn/ui components used throughout
-✅ No styling warnings or errors
-
-## Related Files
-- `/dev-quality/001-css-modules-to-tailwind/` - Migration documentation
-- `GEMINI.md` - Design consistency guidelines
+**Maintainer**: Development Team  
+**Last Review**: December 22, 2024
