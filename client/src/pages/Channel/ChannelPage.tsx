@@ -1,5 +1,17 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { 
+  Video, 
+  VideoOff, 
+  Mic, 
+  MicOff, 
+  MonitorUp, 
+  PhoneOff, 
+  Users as UsersIcon,
+  Wifi,
+  WifiOff,
+  ArrowLeft
+} from 'lucide-react';
 import AgoraRTC, {
   IAgoraRTCClient,
   ICameraVideoTrack,
@@ -10,6 +22,8 @@ import { trpc } from '../../lib/trpc';
 import { isAuthenticated } from '../../lib/auth';
 import ParticipantList from '../../components/ParticipantList';
 import NetworkQuality from '../../components/NetworkQuality';
+import Button from '../../components/ui/Button';
+import { Card, CardContent } from '../../components/ui/Card';
 
 interface ChannelConfig {
   appId: string;
@@ -444,92 +458,155 @@ export default function ChannelPage() {
 
   if (error) {
     return (
-      <div>
-        <div>{error}</div>
-        <button onClick={() => navigate("/channels")}>
-          Back to Channels
-        </button>
+      <div className="min-h-screen bg-background p-6 flex items-center justify-center">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <WifiOff className="size-16 mx-auto text-destructive" />
+              <h2 className="text-xl font-semibold">Connection Error</h2>
+              <div className="text-destructive">{error}</div>
+              <Button onClick={() => navigate("/channels")}>
+                <ArrowLeft className="size-4 mr-2" />
+                Back to Channels
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (!joined) {
     return (
-      <div>
-        <div>Joining channel...</div>
+      <div className="min-h-screen bg-background p-6 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Wifi className="size-16 mx-auto text-primary animate-pulse" />
+          <h2 className="text-xl font-semibold">Joining channel...</h2>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div>
-        <h2>Live Channel</h2>
-        <NetworkQuality client={client} />
-        <button onClick={handleLeave}>
-          Leave Channel
-        </button>
-      </div>
-
-      <div>
-        {Array.from(remoteUsers.entries()).length === 0 ? (
-          <div>
-            Waiting for other participants to join...
-          </div>
-        ) : (
-          Array.from(remoteUsers.entries()).map(([uid, user]) => (
-            <div
-              key={uid}
-            >
-              <div
-                id={`remote-player-${uid}`}
-              ></div>
-              <div>User {uid}</div>
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <div className="border-b border-border bg-card">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Video className="size-5 text-primary" />
+                Live Channel
+              </h2>
+              <NetworkQuality client={client} />
             </div>
-          ))
-        )}
+            <Button variant="destructive" onClick={handleLeave}>
+              <PhoneOff className="size-4 mr-2" />
+              Leave Channel
+            </Button>
+          </div>
+        </div>
       </div>
 
-      <div>
-        <div id="local-player"></div>
-        <div>You</div>
+      {/* Video Grid */}
+      <div className="flex-1 p-4">
+        <div className="max-w-7xl mx-auto h-full">
+          {Array.from(remoteUsers.entries()).length === 0 ? (
+            <div className="h-full flex items-center justify-center">
+              <div className="text-center space-y-4">
+                <UsersIcon className="size-16 mx-auto text-muted-foreground" />
+                <h3 className="text-lg font-semibold">Waiting for participants</h3>
+                <p className="text-muted-foreground">
+                  Invite others to join this channel
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 h-full">
+              {Array.from(remoteUsers.entries()).map(([uid, user]) => (
+                <div
+                  key={uid}
+                  className="relative bg-card rounded-lg overflow-hidden border border-border aspect-video"
+                >
+                  <div
+                    id={`remote-player-${uid}`}
+                    className="w-full h-full"
+                  ></div>
+                  <div className="absolute bottom-3 left-3 px-3 py-1 bg-background/80 backdrop-blur-sm rounded-md text-sm font-medium">
+                    User {uid}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      <div>
-        <button
-          onClick={toggleAudio}
-          title={audioMuted ? "Unmute" : "Mute"}
-        >
-          {audioMuted ? "🔇" : "🎤"}
-        </button>
+      {/* Local Video (Picture-in-Picture) */}
+      <div className="fixed bottom-24 right-6 w-64 z-50">
+        <div className="relative bg-card rounded-lg overflow-hidden border-2 border-primary shadow-lg aspect-video">
+          <div id="local-player" className="w-full h-full"></div>
+          <div className="absolute bottom-2 left-2 px-2 py-1 bg-background/80 backdrop-blur-sm rounded text-xs font-medium">
+            You
+          </div>
+        </div>
+      </div>
 
-        <button
-          onClick={toggleVideo}
-          title={videoMuted ? "Turn on camera" : "Turn off camera"}
-        >
-          {videoMuted ? "📹" : "📷"}
-        </button>
+      {/* Control Bar */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="bg-card border border-border rounded-full shadow-lg px-4 py-3 flex items-center gap-2">
+          <Button
+            variant={audioMuted ? "destructive" : "secondary"}
+            size="icon"
+            onClick={toggleAudio}
+            title={audioMuted ? "Unmute" : "Mute"}
+          >
+            {audioMuted ? <MicOff className="size-5" /> : <Mic className="size-5" />}
+          </Button>
 
-        <button
-          onClick={toggleScreenShare}
-          title={isScreenSharing ? "Stop sharing screen" : "Share screen"}
-        >
-          {isScreenSharing ? "🛑" : "🖥️"}
-        </button>
+          <Button
+            variant={videoMuted ? "destructive" : "secondary"}
+            size="icon"
+            onClick={toggleVideo}
+            title={videoMuted ? "Turn on camera" : "Turn off camera"}
+          >
+            {videoMuted ? <VideoOff className="size-5" /> : <Video className="size-5" />}
+          </Button>
 
-        <button
-          onClick={() => setShowParticipants(true)}
-          title="Show participants"
-        >
-          👥 ({Array.from(remoteUsers.values()).length + 1})
-        </button>
+          <Button
+            variant={isScreenSharing ? "default" : "secondary"}
+            size="icon"
+            onClick={toggleScreenShare}
+            title={isScreenSharing ? "Stop sharing screen" : "Share screen"}
+          >
+            <MonitorUp className="size-5" />
+          </Button>
 
-        <button
-          onClick={handleLeave}
-          title="Leave channel"
-        >
-          📞
-        </button>
+          <div className="w-px h-8 bg-border mx-1"></div>
+
+          <Button
+            variant="secondary"
+            size="icon"
+            onClick={() => setShowParticipants(true)}
+            title="Show participants"
+          >
+            <UsersIcon className="size-5" />
+            <span className="absolute -top-1 -right-1 size-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+              {Array.from(remoteUsers.values()).length + 1}
+            </span>
+          </Button>
+
+          <div className="w-px h-8 bg-border mx-1"></div>
+
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={handleLeave}
+            title="Leave channel"
+          >
+            <PhoneOff className="size-5" />
+          </Button>
+        </div>
       </div>
 
       <ParticipantList
