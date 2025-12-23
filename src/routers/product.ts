@@ -1,32 +1,17 @@
-# Phase 3: Backend API - Product Management
-
-**Status**: ✅ Completed  
-**Estimated Time**: 2 hours  
-**Dependencies**: Phase 2 completed
-
----
-
-## Objectives
-
-Create tRPC router for product management:
-1. Product CRUD operations
-2. Product-channel associations
-3. Vendor/owner access control
-4. Product listing and filtering
-
----
-
-## Product Router
-
-**File**: `src/routers/product.ts`
-
-```typescript
 import { z } from 'zod';
 import { router, protectedProcedure } from '../trpc';
 import { db } from '../db';
 import { TRPCError } from '@trpc/server';
+import type { Context } from '../types/context';
 
-async function requireProductAccess(ctx: any, shopId: number): Promise<void> {
+async function requireProductAccess(ctx: Context, shopId: number): Promise<void> {
+  if (!ctx.user) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'You must be logged in',
+    });
+  }
+
   const role = await db
     .selectFrom('user_shop_roles')
     .select(['role'])
@@ -43,7 +28,6 @@ async function requireProductAccess(ctx: any, shopId: number): Promise<void> {
 }
 
 export const productRouter = router({
-  // Create product
   create: protectedProcedure
     .input(
       z.object({
@@ -85,7 +69,6 @@ export const productRouter = router({
       return product;
     }),
 
-  // List products by shop
   list: protectedProcedure
     .input(
       z.object({
@@ -110,7 +93,6 @@ export const productRouter = router({
       return products;
     }),
 
-  // Get product details
   get: protectedProcedure
     .input(z.object({ productId: z.number() }))
     .query(async ({ ctx, input }) => {
@@ -131,7 +113,6 @@ export const productRouter = router({
       return product;
     }),
 
-  // Update product
   update: protectedProcedure
     .input(
       z.object({
@@ -189,7 +170,6 @@ export const productRouter = router({
       return product;
     }),
 
-  // Delete product
   delete: protectedProcedure
     .input(z.object({ productId: z.number() }))
     .mutation(async ({ ctx, input }) => {
@@ -216,7 +196,6 @@ export const productRouter = router({
       return { success: true };
     }),
 
-  // Associate product with channel
   associateToChannel: protectedProcedure
     .input(
       z.object({
@@ -240,7 +219,6 @@ export const productRouter = router({
 
       await requireProductAccess(ctx, product.shop_id);
 
-      // Check if channel exists
       const channel = await db
         .selectFrom('channels')
         .select(['id'])
@@ -254,7 +232,6 @@ export const productRouter = router({
         });
       }
 
-      // Check if already associated
       const existing = await db
         .selectFrom('channel_products')
         .select(['id'])
@@ -282,7 +259,6 @@ export const productRouter = router({
       return association;
     }),
 
-  // Remove product from channel
   removeFromChannel: protectedProcedure
     .input(
       z.object({
@@ -315,7 +291,6 @@ export const productRouter = router({
       return { success: true };
     }),
 
-  // List products by channel
   listByChannel: protectedProcedure
     .input(z.object({ channelId: z.number() }))
     .query(async ({ ctx, input }) => {
@@ -343,158 +318,3 @@ export const productRouter = router({
       return products;
     }),
 });
-```
-
----
-
-## Register Router
-
-**File**: `src/routers/index.ts`
-
-```typescript
-import { productRouter } from './product';
-
-export const appRouter = router({
-  // ... existing routers
-  shop: shopRouter,
-  product: productRouter,
-});
-```
-
----
-
-## API Endpoints
-
-### product.create
-- **Input**: `{ shopId: number, name: string, description?: string, price?: number, imageUrl?: string }`
-- **Returns**: Product object
-- **Auth**: Required
-- **Role**: Shop owner or vendor
-
-### product.list
-- **Input**: `{ shopId: number, activeOnly?: boolean }`
-- **Returns**: Array of products
-- **Auth**: Required
-- **Role**: Shop owner or vendor
-
-### product.get
-- **Input**: `{ productId: number }`
-- **Returns**: Product object
-- **Auth**: Required
-- **Role**: Shop owner or vendor (of product's shop)
-
-### product.update
-- **Input**: `{ productId: number, name?: string, description?: string, price?: number, imageUrl?: string, isActive?: boolean }`
-- **Returns**: Updated product object
-- **Auth**: Required
-- **Role**: Shop owner or vendor
-
-### product.delete
-- **Input**: `{ productId: number }`
-- **Returns**: `{ success: true }`
-- **Auth**: Required
-- **Role**: Shop owner or vendor
-
-### product.associateToChannel
-- **Input**: `{ productId: number, channelId: number }`
-- **Returns**: ChannelProduct object
-- **Auth**: Required
-- **Role**: Shop owner or vendor
-
-### product.removeFromChannel
-- **Input**: `{ productId: number, channelId: number }`
-- **Returns**: `{ success: true }`
-- **Auth**: Required
-- **Role**: Shop owner or vendor
-
-### product.listByChannel
-- **Input**: `{ channelId: number }`
-- **Returns**: Array of products with shop info
-- **Auth**: Required
-- **Role**: Any authenticated user
-
----
-
-## Testing with tRPC Client
-
-```typescript
-// Create product
-const product = await trpc.product.create.mutate({
-  shopId: 1,
-  name: 'Amazing Product',
-  description: 'Best product ever',
-  price: 29.99,
-  imageUrl: 'https://example.com/image.jpg',
-});
-
-// List products
-const products = await trpc.product.list.query({
-  shopId: 1,
-  activeOnly: true,
-});
-
-// Get product
-const productDetail = await trpc.product.get.query({ productId: 1 });
-
-// Update product
-const updated = await trpc.product.update.mutate({
-  productId: 1,
-  price: 24.99,
-  isActive: false,
-});
-
-// Associate to channel
-await trpc.product.associateToChannel.mutate({
-  productId: 1,
-  channelId: 5,
-});
-
-// List channel products
-const channelProducts = await trpc.product.listByChannel.query({ channelId: 5 });
-
-// Remove from channel
-await trpc.product.removeFromChannel.mutate({
-  productId: 1,
-  channelId: 5,
-});
-
-// Delete product
-await trpc.product.delete.mutate({ productId: 1 });
-```
-
----
-
-## Validation Checklist
-
-- [ ] Product router created
-- [ ] Router registered in app router
-- [ ] TypeScript types correct
-- [ ] All endpoints tested manually
-- [ ] Auth requirements enforced
-- [ ] Shop access validated
-- [ ] Price stored as decimal correctly
-- [ ] Channel associations working
-- [ ] Cascade deletes working (product deletion removes associations)
-
----
-
-## Error Scenarios
-
-| Scenario | Error Code | Message |
-|----------|------------|---------|
-| No shop access | FORBIDDEN | You do not have access to this shop |
-| Product not found | NOT_FOUND | Product not found |
-| Channel not found | NOT_FOUND | Channel not found |
-| Already associated | CONFLICT | Product already associated with this channel |
-| Invalid price | BAD_REQUEST | Price must be non-negative |
-| Invalid URL | BAD_REQUEST | Invalid image URL |
-
----
-
-**Phase 3 Completion Criteria**:
-✅ Product router implemented  
-✅ All 8 endpoints functional  
-✅ Access control enforced  
-✅ Channel associations working  
-✅ Manual testing passed  
-✅ Ready for Phase 4 (Vendor Promotion API)
