@@ -218,7 +218,9 @@ export const shopRouter = router({
         .innerJoin("users", "users.id", "user_shop_roles.user_id")
         .select([
           "users.id",
-          "users.username",
+          "users.email",
+          "users.firstname",
+          "users.lastname",
           "user_shop_roles.role",
           "user_shop_roles.created_at as assigned_at",
         ])

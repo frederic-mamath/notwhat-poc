@@ -21,7 +21,7 @@ export default function ShopDetailPage() {
   const [showAddVendor, setShowAddVendor] = useState(false);
 
   const { data: shop, isLoading } = trpc.shop.get.useQuery(
-    { id: shopId },
+    { shopId },
     {
       enabled: shopId > 0,
       onSuccess: (data) => {
@@ -37,7 +37,7 @@ export default function ShopDetailPage() {
     onSuccess: () => {
       toast.success('Shop updated successfully');
       setIsEditing(false);
-      utils.shop.get.invalidate({ id: shopId });
+      utils.shop.get.invalidate({ shopId });
       utils.shop.list.invalidate();
     },
     onError: (error) => {
@@ -62,7 +62,7 @@ export default function ShopDetailPage() {
     }
 
     updateShopMutation.mutate({
-      id: shopId,
+      shopId,
       name: name.trim(),
       description: description.trim() || undefined,
     });
@@ -70,7 +70,7 @@ export default function ShopDetailPage() {
 
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this shop? This action cannot be undone.')) {
-      deleteShopMutation.mutate({ id: shopId });
+      deleteShopMutation.mutate({ shopId });
     }
   };
 
