@@ -54,9 +54,11 @@ export default function NavBar() {
                   </Link>
                 </Button>
 
-                <Button variant="default" size="sm" onClick={() => navigate("/create-channel")}>
-                  <Plus className="size-4 mr-2" />
-                  Create
+                <Button variant="default" size="sm" asChild>
+                  <Link to="/create-channel">
+                    <Plus className="size-4 mr-2" />
+                    Create
+                  </Link>
                 </Button>
 
                 {user && (
@@ -136,16 +138,11 @@ export default function NavBar() {
                     </Link>
                   </Button>
 
-                  <Button 
-                    variant="default" 
-                    className="justify-start" 
-                    onClick={() => {
-                      navigate("/create-channel");
-                      closeMobileMenu();
-                    }}
-                  >
-                    <Plus className="size-4 mr-2" />
-                    Create Channel
+                  <Button variant="default" className="justify-start" asChild>
+                    <Link to="/create-channel" onClick={closeMobileMenu}>
+                      <Plus className="size-4 mr-2" />
+                      Create Channel
+                    </Link>
                   </Button>
 
                   <div className="border-t border-border my-2"></div>

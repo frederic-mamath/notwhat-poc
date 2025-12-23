@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { 
   Video, 
@@ -465,9 +465,11 @@ export default function ChannelPage() {
               <WifiOff className="size-16 mx-auto text-destructive" />
               <h2 className="text-xl font-semibold">Connection Error</h2>
               <div className="text-destructive">{error}</div>
-              <Button onClick={() => navigate("/channels")}>
-                <ArrowLeft className="size-4 mr-2" />
-                Back to Channels
+              <Button asChild>
+                <Link to="/channels">
+                  <ArrowLeft className="size-4 mr-2" />
+                  Back to Channels
+                </Link>
               </Button>
             </div>
           </CardContent>

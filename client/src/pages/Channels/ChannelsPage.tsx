@@ -1,5 +1,5 @@
 import { trpc } from '../../lib/trpc';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Video, Users, Lock, Plus } from 'lucide-react';
 import { isAuthenticated } from '../../lib/auth';
@@ -53,9 +53,11 @@ export default function ChannelsPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Live Channels</h1>
-          <Button onClick={() => navigate('/create-channel')}>
-            <Plus className="size-4 mr-2" />
-            Create Channel
+          <Button asChild>
+            <Link to="/create-channel">
+              <Plus className="size-4 mr-2" />
+              Create Channel
+            </Link>
           </Button>
         </div>
 
@@ -66,9 +68,11 @@ export default function ChannelsPage() {
             <p className="text-muted-foreground mb-4">
               Be the first to create a live channel!
             </p>
-            <Button onClick={() => navigate('/create-channel')}>
-              <Plus className="size-4 mr-2" />
-              Create Channel
+            <Button asChild>
+              <Link to="/create-channel">
+                <Plus className="size-4 mr-2" />
+                Create Channel
+              </Link>
             </Button>
           </div>
         ) : (
@@ -96,7 +100,7 @@ export default function ChannelsPage() {
                 <CardFooter>
                   <Button
                     className="w-full"
-                    onClick={() => navigate(`/channel/${channel.id}`)}
+                    asChild={channel.participantCount < (channel.max_participants || 10)}
                     disabled={channel.participantCount >= (channel.max_participants || 10)}
                     variant={
                       channel.participantCount >= (channel.max_participants || 10)
@@ -104,9 +108,11 @@ export default function ChannelsPage() {
                         : 'default'
                     }
                   >
-                    {channel.participantCount >= (channel.max_participants || 10)
-                      ? 'Full'
-                      : 'Join Channel'}
+                    {channel.participantCount >= (channel.max_participants || 10) ? (
+                      <span>Full</span>
+                    ) : (
+                      <Link to={`/channel/${channel.id}`}>Join Channel</Link>
+                    )}
                   </Button>
                 </CardFooter>
               </Card>

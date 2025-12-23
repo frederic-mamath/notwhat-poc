@@ -1,23 +1,30 @@
-import { useState, FormEvent, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Video, Lock, Users, ArrowLeft } from 'lucide-react';
-import { trpc } from '../../lib/trpc';
-import { isAuthenticated } from '../../lib/auth';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
-import Label from '../../components/ui/Label';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../components/ui/Card';
+import { useState, FormEvent, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Plus, Video, Lock, Users, ArrowLeft } from "lucide-react";
+import { trpc } from "../../lib/trpc";
+import { isAuthenticated } from "../../lib/auth";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Label from "../../components/ui/Label";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "../../components/ui/Card";
 
 export default function CreateChannelPage() {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [maxParticipants, setMaxParticipants] = useState(10);
   const [isPrivate, setIsPrivate] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!isAuthenticated()) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [navigate]);
 
@@ -32,10 +39,10 @@ export default function CreateChannelPage() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (name.length < 3) {
-      setError('Channel name must be at least 3 characters');
+      setError("Channel name must be at least 3 characters");
       return;
     }
 
@@ -49,9 +56,11 @@ export default function CreateChannelPage() {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-2xl mx-auto space-y-6">
-        <Button variant="ghost" onClick={() => navigate('/channels')}>
-          <ArrowLeft className="size-4 mr-2" />
-          Back to channels
+        <Button variant="ghost" asChild>
+          <Link to="/channels">
+            <ArrowLeft className="size-4 mr-2" />
+            Back to channels
+          </Link>
         </Button>
 
         <Card>
@@ -60,7 +69,9 @@ export default function CreateChannelPage() {
               <Video className="size-6" />
               Create Live Channel
             </CardTitle>
-            <CardDescription>Start a new live video/audio channel</CardDescription>
+            <CardDescription>
+              Start a new live video/audio channel
+            </CardDescription>
           </CardHeader>
 
           <CardContent>
@@ -89,7 +100,10 @@ export default function CreateChannelPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="maxParticipants" className="flex items-center gap-2">
+                <Label
+                  htmlFor="maxParticipants"
+                  className="flex items-center gap-2"
+                >
                   <Users className="size-4" />
                   Max Participants
                 </Label>
@@ -114,7 +128,10 @@ export default function CreateChannelPage() {
                   onChange={(e) => setIsPrivate(e.target.checked)}
                   className="size-4 rounded border-input"
                 />
-                <Label htmlFor="isPrivate" className="flex items-center gap-2 cursor-pointer">
+                <Label
+                  htmlFor="isPrivate"
+                  className="flex items-center gap-2 cursor-pointer"
+                >
                   <Lock className="size-4" />
                   Make this channel private
                 </Label>
@@ -126,7 +143,7 @@ export default function CreateChannelPage() {
                 className="w-full"
               >
                 <Plus className="size-4 mr-2" />
-                {createMutation.isPending ? 'Creating...' : 'Create Channel'}
+                {createMutation.isPending ? "Creating..." : "Create Channel"}
               </Button>
             </form>
           </CardContent>

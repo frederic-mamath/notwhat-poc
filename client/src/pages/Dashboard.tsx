@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { LogOut, User, Mail, Calendar, CheckCircle, Clock } from "lucide-react";
 import { trpc } from "../lib/trpc";
 import { removeToken, isAuthenticated } from "../lib/auth";
@@ -78,7 +78,9 @@ export default function Dashboard() {
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
               <div className="text-destructive">{error.message}</div>
-              <Button onClick={() => navigate("/login")}>Go to Login</Button>
+              <Button asChild>
+                <Link to="/login">Go to Login</Link>
+              </Button>
             </div>
           </CardContent>
         </Card>

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Video, Zap, Shield, Users, ArrowRight } from 'lucide-react';
 import { isAuthenticated } from '../lib/auth';
@@ -30,12 +30,14 @@ export default function Landing() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-4 px-4">
-              <Button size="lg" className="w-full sm:w-auto" onClick={() => navigate('/register')}>
-                Get Started
-                <ArrowRight className="size-4 ml-2" />
+              <Button size="lg" className="w-full sm:w-auto" asChild>
+                <Link to="/register">
+                  Get Started
+                  <ArrowRight className="size-4 ml-2" />
+                </Link>
               </Button>
-              <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={() => navigate('/login')}>
-                Sign In
+              <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
+                <Link to="/login">Sign In</Link>
               </Button>
             </div>
           </div>
@@ -101,9 +103,11 @@ export default function Landing() {
           <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8">
             Join thousands of users already streaming live on NoWhat
           </p>
-          <Button size="lg" className="w-full sm:w-auto" onClick={() => navigate('/register')}>
-            Create Your Account
-            <ArrowRight className="size-4 ml-2" />
+          <Button size="lg" className="w-full sm:w-auto" asChild>
+            <Link to="/register">
+              Create Your Account
+              <ArrowRight className="size-4 ml-2" />
+            </Link>
           </Button>
         </div>
       </div>
