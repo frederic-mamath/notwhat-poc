@@ -296,9 +296,64 @@ export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
 - [ ] No visual bugs or layout issues
 
 ## Status
-⏳ **IN PROGRESS** - Responsive design improvements complete
+⏳ **IN PROGRESS** - Core components migrated, final polish remaining
 
 ## Completed Tasks
+
+### Shadcn Components Added
+- [x] Alert component created (`alert.tsx`)
+  - Variants: default, destructive
+  - Sub-components: Alert, AlertTitle, AlertDescription
+  - Used for error/info messages
+- [x] Skeleton component created (`skeleton.tsx`)
+  - Simple loading placeholder with pulse animation
+  - Flexible sizing via className prop
+- [x] Sheet component created (`sheet.tsx`)
+  - Radix UI Dialog-based drawer/sidebar
+  - Installed @radix-ui/react-dialog dependency
+  - Supports all 4 sides (top, right, bottom, left)
+  - Includes overlay, header, footer, title, description
+
+### Component Migrations
+
+#### NetworkQuality Component ✅
+**Before**: Plain div with text
+**After**: Shadcn Badge with icons
+- ✅ Badge component with variant based on quality
+- ✅ Lucide icons: Wifi (good), WifiOff (poor)
+- ✅ Color-coded: green (excellent/good), yellow (fair), orange (poor), red (bad)
+- ✅ Responsive: Hide label text on mobile, show on sm+
+- ✅ Quality levels: 0-6 mapped to variants
+- ✅ Dynamic icon/color based on network stats
+
+#### ParticipantList Component ✅
+**Before**: Unstyled modal overlay
+**After**: Shadcn Sheet (drawer) with rich UI
+- ✅ Sheet component (slide-in from right)
+- ✅ Avatar component for user initials
+- ✅ Badge component for Host label
+- ✅ Crown icon for host indicator
+- ✅ Mic/MicOff, Video/VideoOff icons for media status
+- ✅ Hover states on participant cards
+- ✅ Empty state with Users icon
+- ✅ User count in header
+- ✅ Descriptive subtitle
+- ✅ Proper spacing and borders
+- ✅ Local user highlighted with accent background
+
+#### ErrorBoundary Component ✅
+**Before**: Unstyled error page
+**After**: Professional error UI with Shadcn components
+- ✅ Card component for error container
+- ✅ Alert component (destructive variant) for error message
+- ✅ Button components for actions
+- ✅ AlertTriangle icon (large, centered)
+- ✅ RefreshCw and Home icons on buttons
+- ✅ Centered layout with max-w-lg
+- ✅ Stack trace details (development only)
+- ✅ Responsive button layout (column on mobile, row on desktop)
+- ✅ Professional error messaging
+- ✅ Two action buttons: Reload Page, Go to Channels
 
 ### Mobile-First Approach
 - [x] Updated STYLING.md with mobile-first philosophy
@@ -355,10 +410,24 @@ export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
 - [x] Prevented horizontal scroll on all pages
 - [x] Proper spacing scales (4px increments)
 
+## Remaining Tasks
+
+### Final Polish
+- [ ] Add loading states to Dashboard (Skeleton components)
+- [ ] Add loading states to Channels list (Skeleton components)
+- [ ] Verify all error messages use Alert component
+- [ ] Final consistency pass on spacing
+- [ ] Final consistency pass on colors (design tokens)
+- [ ] Test all pages on mobile devices
+- [ ] Test all pages on tablet devices
+- [ ] Test all pages on desktop
+- [ ] Verify keyboard navigation works everywhere
+- [ ] Check focus states on all interactive elements
+
 ## Estimated Time
 4 hours
 
-**Actual Time**: ~1.5 hours
+**Actual Time**: ~2.5 hours (responsive design + component migrations)
 3.5 hours (1h Alert/Skeleton, 1h ErrorBoundary, 1h Landing, 0.5h Final Polish)
 
 ## Success Metrics

@@ -1,4 +1,8 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -49,36 +53,61 @@ export default class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div>
-          <div>
-            <div>⚠️</div>
-            <h1>Oops! Something went wrong</h1>
-            <p>
-              {this.state.error?.message || 'An unexpected error occurred'}
-            </p>
-            
-            {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
-              <details>
-                <summary>Error Details (Development Only)</summary>
-                <pre>
-                  {this.state.error?.stack}
-                  {'\n\n'}
-                  {this.state.errorInfo.componentStack}
-                </pre>
-              </details>
-            )}
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+          <Card className="max-w-lg w-full">
+            <CardHeader className="text-center pb-4">
+              <div className="flex justify-center mb-4">
+                <div className="rounded-full bg-destructive/10 p-3">
+                  <AlertTriangle className="size-10 text-destructive" />
+                </div>
+              </div>
+              <CardTitle className="text-2xl">Oops! Something went wrong</CardTitle>
+              <CardDescription>
+                We're sorry, but an unexpected error occurred. Please try refreshing the page or returning to the home screen.
+              </CardDescription>
+            </CardHeader>
 
-            <div>
-              <button onClick={this.handleReset}>
-                Go to Channels
-              </button>
-              <button
-                onClick={() => window.location.reload()}
+            <CardContent className="space-y-4">
+              <Alert variant="destructive">
+                <AlertTriangle className="size-4" />
+                <AlertTitle>Error Details</AlertTitle>
+                <AlertDescription>
+                  {this.state.error?.message || 'An unexpected error occurred'}
+                </AlertDescription>
+              </Alert>
+              
+              {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
+                <details className="text-xs">
+                  <summary className="cursor-pointer font-medium text-muted-foreground hover:text-foreground mb-2">
+                    Stack Trace (Development Only)
+                  </summary>
+                  <pre className="overflow-auto p-3 rounded-md bg-muted text-muted-foreground max-h-48 text-[10px]">
+                    {this.state.error?.stack}
+                    {'\n\n'}
+                    {this.state.errorInfo.componentStack}
+                  </pre>
+                </details>
+              )}
+            </CardContent>
+
+            <CardFooter className="flex flex-col sm:flex-row gap-2">
+              <Button 
+                onClick={() => window.location.reload()} 
+                variant="outline" 
+                className="w-full sm:w-auto"
               >
+                <RefreshCw className="size-4 mr-2" />
                 Reload Page
-              </button>
-            </div>
-          </div>
+              </Button>
+              <Button 
+                onClick={this.handleReset}
+                className="w-full sm:w-auto"
+              >
+                <Home className="size-4 mr-2" />
+                Go to Channels
+              </Button>
+            </CardFooter>
+          </Card>
         </div>
       );
     }
