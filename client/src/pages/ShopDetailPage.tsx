@@ -9,6 +9,7 @@ import { ArrowLeft, Edit2, Save, X, Plus, Trash2, Package } from "lucide-react";
 import { toast } from "sonner";
 import VendorList from "../components/VendorList/VendorList";
 import AddVendorModal from "../components/AddVendorModal/AddVendorModal";
+import Container from "../components/Container";
 
 export default function ShopDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -88,24 +89,24 @@ export default function ShopDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <Container className="py-8">
         <p>Loading shop...</p>
-      </div>
+      </Container>
     );
   }
 
   if (!shop) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <Container className="py-8">
         <p>Shop not found</p>
-      </div>
+      </Container>
     );
   }
 
   const isOwner = shop.role === "shop-owner";
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <Container className="py-8" size="lg">
       <Button variant="ghost" className="mb-6" asChild>
         <Link to="/shops">
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -233,6 +234,6 @@ export default function ShopDetailPage() {
           onClose={() => setShowAddVendor(false)}
         />
       )}
-    </div>
+    </Container>
   );
 }

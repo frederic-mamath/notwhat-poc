@@ -7,6 +7,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import Container from '../components/Container';
 
 export default function CreateShopPage() {
   const navigate = useNavigate(); // Keep for form success redirect
@@ -38,7 +39,7 @@ export default function CreateShopPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <Container className="py-8" size="md">
       <Button variant="ghost" className="mb-6" asChild>
         <Link to="/shops">
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -89,6 +90,6 @@ export default function CreateShopPage() {
           </div>
         </form>
       </div>
-    </div>
+    </Container>
   );
 }

@@ -8,6 +8,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
 import { toast } from 'sonner';
+import Container from '../components/Container';
 
 export default function EditProductPage() {
   const { id, productId } = useParams<{ id: string; productId: string }>();
@@ -102,8 +103,8 @@ export default function EditProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <Container size="md">
         <Button variant="ghost" className="mb-6" asChild>
           <Link to={`/shops/${shopIdNum}/products`}>
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -233,7 +234,7 @@ export default function EditProductPage() {
             Manage Associations (Coming Soon)
           </Button>
         </div>
-      </div>
+      </Container>
     </div>
   );
 }

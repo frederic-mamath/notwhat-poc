@@ -7,6 +7,7 @@ import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
+import Container from '../components/Container';
 
 export default function CreateProductPage() {
   const { id } = useParams<{ id: string }>();
@@ -59,8 +60,8 @@ export default function CreateProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <Container size="md">
         <Button variant="ghost" className="mb-6" asChild>
           <Link to={`/shops/${shopIdNum}/products`}>
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -152,7 +153,7 @@ export default function CreateProductPage() {
             </div>
           </form>
         </div>
-      </div>
+      </Container>
     </div>
   );
 }
