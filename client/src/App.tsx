@@ -17,6 +17,8 @@ import ShopsPage from './pages/ShopsPage';
 import CreateShopPage from './pages/CreateShopPage';
 import ShopDetailPage from './pages/ShopDetailPage';
 import ProductsPage from './pages/ProductsPage';
+import CreateProductPage from './pages/CreateProductPage';
+import EditProductPage from './pages/EditProductPage';
 import ShopLayout from './pages/ShopLayout';
 
 function App() {
@@ -54,6 +56,8 @@ function App() {
               <Route path="/shops/:id" element={<ShopLayout />}>
                 <Route index element={<ShopDetailPage />} />
                 <Route path="products" element={<ProductsPage />} />
+                <Route path="products/create" element={<CreateProductPage />} />
+                <Route path="products/:productId/edit" element={<EditProductPage />} />
               </Route>
             </Routes>
           </BrowserRouter>

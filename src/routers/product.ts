@@ -35,7 +35,7 @@ export const productRouter = router({
         name: z.string().min(1).max(255),
         description: z.string().optional(),
         price: z.number().min(0).optional(),
-        imageUrl: z.string().url().optional(),
+        imageUrl: z.string().url().optional().nullable(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -120,7 +120,7 @@ export const productRouter = router({
         name: z.string().min(1).max(255).optional(),
         description: z.string().optional(),
         price: z.number().min(0).optional(),
-        imageUrl: z.string().url().optional(),
+        imageUrl: z.string().url().optional().nullable(),
         isActive: z.boolean().optional(),
       })
     )
