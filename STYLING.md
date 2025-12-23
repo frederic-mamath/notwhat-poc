@@ -1,86 +1,52 @@
-# Design System Guidelines
+# Styling Guide
 
-## Philosophy
-- **Mobile First**: Design for mobile, enhance for desktop
-- **Shadcn First**: Use components from `client/src/components/ui/`
-- **Accessibility**: Built-in keyboard navigation, screen readers, ARIA
-- **Type-Safe**: Full TypeScript support
+## Design System
 
----
+**Shadcn UI** + **Tailwind CSS** + **Lucide Icons**
 
-## Core Stack
+- Always use Shadcn components from `client/src/components/ui/`
+- If component doesn't exist, check [Shadcn docs](https://ui.shadcn.com/)
+- All styling via Tailwind CSS utilities (no CSS modules)
+- Icons from [Lucide React](https://lucide.dev/)
 
-### Shadcn UI
-- **Docs**: https://ui.shadcn.com/
-- **Location**: `client/src/components/ui/`
-- **Add components**: `npx shadcn@latest add [component-name]`
+## Approach
 
-### Tailwind CSS
-- **Docs**: https://tailwindcss.com/docs
-- **Mobile-first breakpoints**: `sm:640px md:768px lg:1024px xl:1280px 2xl:1536px`
-- **Utility-first**: Apply classes directly in JSX, never use CSS modules
+### Mobile-First Responsive Design
+Always start with mobile styles, then add responsive breakpoints:
 
-### Lucide Icons
-- **Docs**: https://lucide.dev/
-- **Import**: `import { IconName } from 'lucide-react'`
-- **Sizes**: `size-4` (default), `size-5` (buttons), `size-6` (large)
-
-### Sonner Toasts
-- **Usage**: `toast.success()`, `toast.error()`, `toast.info()`, `toast.warning()`
-
----
-
-## Component Usage
-
-### Finding Components
-1. Check `client/src/components/ui/` first
-2. If not found, visit https://ui.shadcn.com/
-3. Install with `npx shadcn@latest add [component-name]`
-
-### Common Components
 ```tsx
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
-import Label from '@/components/ui/Label';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/Card';
-import { IconName } from 'lucide-react';
-
-// Button variants: default, destructive, outline, secondary, ghost, link
-// Button sizes: sm, default, lg, icon
-<Button variant="default" size="lg">
-  <IconName className="size-5 mr-2" />
-  Action
-</Button>
-
-// Icons
-<IconName className="size-4" /> // Default 16px
-<IconName className="size-5" /> // Buttons 20px
-<IconName className="size-6" /> // Large 24px
-
-// Accessibility
-<Button size="icon" aria-label="Settings">
-  <Settings className="size-4" />
-</Button>
+// Mobile first (default = mobile)
+<div className="flex-col gap-2 text-sm">
+  
+  {/* Tablet and up */}
+  <div className="md:flex-row md:gap-4 md:text-base">
+    
+    {/* Desktop and up */}
+    <div className="lg:gap-6 lg:text-lg" />
+  </div>
+</div>
 ```
 
----
+**Breakpoints:**
+- `sm:` - 640px and up (small tablets)
+- `md:` - 768px and up (tablets)
+- `lg:` - 1024px and up (desktops)
+- `xl:` - 1280px and up (large desktops)
 
-## Styling
+### Tailwind Utilities
+Apply classes directly in JSX:
 
-### Mobile-First Responsive
 ```tsx
-// ✅ DO: Mobile first, enhance for desktop
-<div className="flex-col md:flex-row">
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-<div className="text-sm md:text-base lg:text-lg">
-
-// ❌ DON'T: Desktop first
-<div className="flex-row md:flex-col">
+<div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-md">
+  <h3 className="text-xl font-semibold">Title</h3>
+</div>
 ```
 
-### Conditional Classes
+### Conditional Styling
+Use `cn()` helper:
+
 ```tsx
-import { cn } from '@/lib/utils';
+import { cn } from '../lib/utils';
 
 <Button className={cn(
   "px-4 py-2",
@@ -89,45 +55,90 @@ import { cn } from '@/lib/utils';
 )} />
 ```
 
-### Common Patterns
+## Components
+
+### Shadcn Components
+Check `client/src/components/ui/` first. If not found, check [Shadcn docs](https://ui.shadcn.com/).
+
+### Button Variants
 ```tsx
-// Layout
+import { Button } from '../components/ui/button';
+
+<Button variant="default">Primary</Button>
+<Button variant="destructive">Delete</Button>
+<Button variant="outline">Secondary</Button>
+<Button variant="ghost">Minimal</Button>
+<Button size="sm">Small</Button>
+<Button size="lg">Large</Button>
+```
+
+### Icons
+```tsx
+import { User, Settings, LogOut } from 'lucide-react';
+
+<User className="w-4 h-4" />
+<Settings className="w-6 h-6 text-gray-500" />
+```
+
+## Notifications
+
+Use Sonner for toast notifications:
+
+```tsx
+import { toast } from 'sonner';
+
+toast.success('Success message');
+toast.error('Error message');
+toast.info('Info message');
+toast.warning('Warning message');
+```
+
+## Common Patterns
+
+### Layout
+```tsx
+// Flexbox
 className="flex items-center justify-between gap-4"
-className="grid grid-cols-1 md:grid-cols-2 gap-6"
-className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+className="flex flex-col md:flex-row" // Mobile: column, Desktop: row
 
-// Spacing
-className="p-4 px-6 py-4 mt-8 mb-4 gap-4"
+// Grid
+className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
 
-// Colors (use design tokens)
-className="bg-primary text-primary-foreground"
-className="bg-secondary text-secondary-foreground"
-className="bg-destructive text-destructive-foreground"
-className="border border-border"
-
-// Typography
-className="text-xl font-semibold"
-
-// Shadows & Borders
-className="shadow-md rounded-xl"
+// Container
+className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8"
 ```
 
-### Component Structure
-```
-ComponentName/
-├── ComponentName.tsx    # Logic + Tailwind classes
-└── index.ts            # Re-export
+### Spacing
+```tsx
+className="p-4"       // padding all sides
+className="px-4 py-2" // horizontal and vertical padding
+className="gap-4"     // gap between flex/grid items
 ```
 
-**Never use CSS modules**
+### Typography
+```tsx
+className="text-sm md:text-base"      // Responsive text
+className="font-medium"                // Weight
+className="text-gray-900"              // Color
+```
 
----
+### Responsive Utilities
+```tsx
+className="hidden md:block"            // Hide on mobile
+className="block md:hidden"            // Show only on mobile
+className="w-full md:w-1/2 lg:w-1/3"  // Responsive widths
+```
+
+## Accessibility
+
+- Always add `title` or `aria-label` to icon-only buttons
+- Use semantic HTML with Shadcn components
+- Test keyboard navigation
+- Ensure proper focus states
 
 ## Resources
 
-- Shadcn: https://ui.shadcn.com/
-- Tailwind: https://tailwindcss.com/docs
-- Lucide: https://lucide.dev/
-- Sonner: https://github.com/emilkowalski/sonner
-
-**Last Updated**: 2025-12-23
+- [Shadcn UI](https://ui.shadcn.com/)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+- [Lucide Icons](https://lucide.dev/)
+- [CVA](https://cva.style/docs)

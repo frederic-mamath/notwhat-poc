@@ -4,6 +4,10 @@
 
 NoWhat is a full-stack authentication application using a type-safe API architecture with clear separation between frontend and backend concerns.
 
+**Frontend Architecture**: See [client/ARCHITECTURE.md](client/ARCHITECTURE.md) for UI and component structure.
+
+**Styling Guide**: See [STYLING.md](STYLING.md) for design system and Tailwind CSS patterns.
+
 ## Tech Stack
 
 ### Backend
@@ -17,11 +21,13 @@ NoWhat is a full-stack authentication application using a type-safe API architec
 
 ### Frontend
 
-- **React 18** - UI library
+- **React 18** - UI library (see [client/ARCHITECTURE.md](client/ARCHITECTURE.md))
 - **TypeScript** - Type safety
 - **Vite** - Build tool and dev server
+- **Tailwind CSS** - Styling (see [STYLING.md](STYLING.md))
+- **Shadcn UI** - Component library
 - **React Router** - Client-side routing
-- **TanStack Query (React Query)** - Server state management
+- **TanStack Query** - Server state management
 - **tRPC React Client** - Type-safe API consumption
 
 ---
@@ -163,26 +169,9 @@ const createContext = ({ req }: CreateExpressContextOptions): Context => {
 
 ### 4. **Frontend - Component-Based Architecture**
 
+**See [client/ARCHITECTURE.md](client/ARCHITECTURE.md) for complete frontend architecture and component structure.**
+
 **Pattern**: Functional Components + Hooks + Client-Side Routing
-
-**Location**: `client/src/`
-
-**Structure**:
-
-```
-client/src/
-├── pages/           # Page components (route handlers)
-│   ├── LandingPage.tsx
-│   ├── LoginPage.tsx
-│   ├── RegisterPage.tsx
-│   └── DashboardPage.tsx
-├── components/      # Reusable UI components (currently minimal)
-├── lib/             # Utilities and configurations
-│   ├── trpc.ts      # tRPC React client setup
-│   └── auth.ts      # Token management utilities
-├── App.tsx          # Root component with providers
-└── main.tsx         # Entry point
-```
 
 **Key Patterns**:
 
@@ -513,9 +502,10 @@ npm run dev:client            # Start frontend (port 5173)
 
 #### Adding a new page:
 
-1. Create component in `client/src/pages/`
+1. Create component in `client/src/pages/` (see [client/ARCHITECTURE.md](client/ARCHITECTURE.md))
 2. Add route in `client/src/App.tsx`
 3. Add navigation links
+4. Follow styling guide in [STYLING.md](STYLING.md)
 
 #### Database changes:
 
@@ -535,9 +525,7 @@ npm run dev:client            # Start frontend (port 5173)
 
 ### Frontend
 
-- **Pages by route**: One file per route
-- **Components for reuse**: Shared UI components
-- **Lib for setup**: Configuration and utilities
+See [client/ARCHITECTURE.md](client/ARCHITECTURE.md) for detailed frontend file organization.
 
 ---
 

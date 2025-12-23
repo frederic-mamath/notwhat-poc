@@ -358,11 +358,21 @@ A: Detailed enough that someone else (or future you) can pick up the work withou
 
 ---
 
+## Copilot Instructions
+
+When creating plans for dev-quality tracks, always:
+
+1. **Search for** `dev-quality/ARCHITECTURE.md` to understand the structure
+2. **Follow the template** defined in this document
+3. **Create phases** that are resumable (1-4 hours each)
+4. **Update summary.md** after each phase completion
+5. **Use status emojis** consistently (⏳/✅/❌/🔄/📝)
+
 ## Related Documentation
 
-- `ARCHITECTURE.md` - Overall system architecture
-- `STYLING.md` - UI/styling conventions
-- `.github/copilot-instructions.md` - AI assistant guidelines
+- `../ARCHITECTURE.md` - Overall system architecture
+- `../STYLING.md` - UI/styling conventions
+- `../client/ARCHITECTURE.md` - Frontend component architecture
 
 ---
 
