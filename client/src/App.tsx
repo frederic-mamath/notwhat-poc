@@ -6,13 +6,13 @@ import { trpc } from './lib/trpc';
 import { getToken } from './lib/auth';
 import NavBar from './components/NavBar';
 import ErrorBoundary from './components/ErrorBoundary';
-import Landing from './pages/Landing';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Channels from './pages/Channels';
-import CreateChannel from './pages/CreateChannel';
-import Channel from './pages/Channel';
+import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import DashboardPage from './pages/DashboardPage';
+import ChannelsPage from './pages/ChannelsPage';
+import CreateChannelPage from './pages/CreateChannelPage';
+import ChannelPage from './pages/ChannelPage';
 
 function App() {
   const [queryClient] = useState(() => new QueryClient());
@@ -37,13 +37,13 @@ function App() {
           <BrowserRouter>
             <NavBar />
             <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/channels" element={<Channels />} />
-              <Route path="/create-channel" element={<CreateChannel />} />
-              <Route path="/channel/:channelId" element={<Channel />} />
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/channels" element={<ChannelsPage />} />
+              <Route path="/create-channel" element={<CreateChannelPage />} />
+              <Route path="/channel/:channelId" element={<ChannelPage />} />
             </Routes>
           </BrowserRouter>
         </QueryClientProvider>

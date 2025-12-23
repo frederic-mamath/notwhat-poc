@@ -1,11 +1,11 @@
 import { useState, FormEvent, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Plus, Video, Lock, Users, ArrowLeft } from "lucide-react";
-import { trpc } from "../../lib/trpc";
-import { isAuthenticated } from "../../lib/auth";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
-import Label from "../../components/ui/Label";
+import { trpc } from "../lib/trpc";
+import { isAuthenticated } from "../lib/auth";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import Label from "../components/ui/Label";
 import {
   Card,
   CardHeader,
@@ -13,7 +13,7 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from "../../components/ui/Card";
+} from "../components/ui/Card";
 
 export default function CreateChannelPage() {
   const navigate = useNavigate();

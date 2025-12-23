@@ -18,12 +18,12 @@ import AgoraRTC, {
   IMicrophoneAudioTrack,
   IAgoraRTCRemoteUser,
 } from 'agora-rtc-sdk-ng';
-import { trpc } from '../../lib/trpc';
-import { isAuthenticated } from '../../lib/auth';
-import ParticipantList from '../../components/ParticipantList';
-import NetworkQuality from '../../components/NetworkQuality';
-import Button from '../../components/ui/Button';
-import { Card, CardContent } from '../../components/ui/Card';
+import { trpc } from '../lib/trpc';
+import { isAuthenticated } from '../lib/auth';
+import ParticipantList from '../components/ParticipantList';
+import NetworkQuality from '../components/NetworkQuality';
+import Button from '../components/ui/Button';
+import { Card, CardContent } from '../components/ui/Card';
 
 interface ChannelConfig {
   appId: string;

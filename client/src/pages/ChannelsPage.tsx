@@ -1,11 +1,11 @@
-import { trpc } from '../../lib/trpc';
+import { trpc } from '../lib/trpc';
 import { useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Video, Users, Lock, Plus } from 'lucide-react';
-import { isAuthenticated } from '../../lib/auth';
-import Button from '../../components/ui/Button';
-import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '../../components/ui/Card';
-import { Skeleton } from '../../components/ui/skeleton';
+import { isAuthenticated } from '../lib/auth';
+import Button from '../components/ui/Button';
+import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '../components/ui/Card';
+import { Skeleton } from '../components/ui/skeleton';
 
 export default function ChannelsPage() {
   const navigate = useNavigate();
