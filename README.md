@@ -1,6 +1,6 @@
-# NoWhat - tRPC Authentication Project
+# WhyNot - Live Streaming Platform
 
-A tRPC-based authentication system with PostgreSQL, Drizzle ORM, and JWT authentication.
+A tRPC-based live streaming platform with PostgreSQL, real-time video channels, shops, and product promotions.
 
 ## Features
 
@@ -139,7 +139,7 @@ npm run db:studio
 Copy `.env.example` to `.env` and update:
 
 ```env
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/notwhat
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/whynot
 JWT_SECRET=your-secret-key-change-in-production
 PORT=3000
 ```
@@ -147,7 +147,7 @@ PORT=3000
 ## Project Structure
 
 ```
-notwhat/
+whynot/
 ├── src/
 │   ├── db/
 │   │   ├── index.ts       # Database connection

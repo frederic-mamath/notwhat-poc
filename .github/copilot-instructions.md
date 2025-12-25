@@ -1,4 +1,4 @@
-# GitHub Copilot Instructions for NotWhat Project
+# GitHub Copilot Instructions for WhyNot Project
 
 ## Context Files
 
