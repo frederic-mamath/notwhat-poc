@@ -50,7 +50,7 @@ Convert NavBar component to use Shadcn Button and Lucide icons, creating a moder
       {/* Logo/Brand */}
       <Link to="/" className="flex items-center gap-2">
         <Video className="size-6" />
-        <span className="text-xl font-bold">NotWhat</span>
+        <span className="text-xl font-bold">WhyNot</span>
       </Link>
       
       {/* Navigation Links */}

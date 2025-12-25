@@ -161,13 +161,13 @@ npm run db:push
 **Verify**:
 ```bash
 # Check tables were created
-docker exec notwhat-postgres psql -U postgres -d notwhat -c "\dt"
+docker exec whynot-postgres psql -U postgres -d whynot -c "\dt"
 
 # Check channels table structure
-docker exec notwhat-postgres psql -U postgres -d notwhat -c "\d channels"
+docker exec whynot-postgres psql -U postgres -d whynot -c "\d channels"
 
 # Check participants table structure
-docker exec notwhat-postgres psql -U postgres -d notwhat -c "\d channel_participants"
+docker exec whynot-postgres psql -U postgres -d whynot -c "\d channel_participants"
 ```
 
 ---
@@ -177,7 +177,7 @@ docker exec notwhat-postgres psql -U postgres -d notwhat -c "\d channel_particip
 **Update `.env`**:
 ```env
 # Existing vars
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/notwhat
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/whynot
 JWT_SECRET=dev-secret-key-change-in-production
 PORT=3000
 
@@ -188,7 +188,7 @@ AGORA_APP_CERTIFICATE=your_agora_app_certificate_here
 
 **Update `.env.example`**:
 ```env
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/notwhat
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/whynot
 JWT_SECRET=your-secret-key-change-this-in-production
 PORT=3000
 AGORA_APP_ID=your_agora_app_id

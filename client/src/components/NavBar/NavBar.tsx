@@ -33,7 +33,7 @@ export default function NavBar() {
             onClick={closeMobileMenu}
           >
             <Video className="size-5 md:size-6 text-primary" />
-            <span className="hidden xs:inline">NotWhat</span>
+            <span className="hidden xs:inline">WhyNot</span>
           </Link>
 
           {/* Desktop Navigation */}

@@ -131,7 +131,7 @@ Complete the migration by updating error handling components, adding the Landing
         Live Video Streaming Made Simple
       </h1>
       <p className="text-xl md:text-2xl mb-8 text-white/90">
-        Connect, collaborate, and create with NotWhat's powerful streaming platform
+        Connect, collaborate, and create with WhyNot's powerful streaming platform
       </p>
       <div className="flex gap-4 justify-center">
         <Button size="lg" variant="secondary" asChild>
