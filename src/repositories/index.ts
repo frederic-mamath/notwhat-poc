@@ -17,6 +17,5 @@ export { shopRepository } from './ShopRepository';
 export { userShopRoleRepository } from './UserShopRoleRepository';
 export { productRepository } from './ProductRepository';
 export { channelProductRepository } from './ChannelProductRepository';
-
-// More repositories will be added in later phases:
-// export { channelRepository } from './ChannelRepository';
+export { channelRepository } from './ChannelRepository';
+export { channelParticipantRepository } from './ChannelParticipantRepository';

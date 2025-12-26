@@ -1,9 +1,10 @@
 import { router, publicProcedure } from '../trpc';
 import { z } from 'zod';
-import { db } from '../db';
+import { channelRepository, channelParticipantRepository } from '../repositories';
 import { TRPCError } from '@trpc/server';
 import { generateAgoraToken, getAgoraAppId } from '../utils/agora';
 import { sql } from 'kysely';
+import { db } from '../db';
 
 export const channelRouter = router({
   /**
@@ -26,30 +27,20 @@ export const channelRouter = router({
         });
       }
 
-      // Create channel
-      const channel = await db
-        .insertInto('channels')
-        .values({
-          name: input.name,
-          host_id: ctx.userId,
-          max_participants: input.maxParticipants,
-          is_private: input.isPrivate,
-          status: 'active',
-          created_at: new Date(),
-        })
-        .returningAll()
-        .executeTakeFirstOrThrow();
+      // Create channel using repository
+      const channel = await channelRepository.save({
+        name: input.name,
+        host_id: ctx.userId,
+        max_participants: input.maxParticipants,
+        is_private: input.isPrivate,
+      });
 
       // Add host as first participant
-      await db
-        .insertInto('channel_participants')
-        .values({
-          channel_id: channel.id,
-          user_id: ctx.userId,
-          role: 'host',
-          joined_at: new Date(),
-        })
-        .execute();
+      await channelParticipantRepository.addParticipant(
+        channel.id,
+        ctx.userId,
+        'host'
+      );
 
       // Generate Agora token for host
       const token = generateAgoraToken({
@@ -62,7 +53,7 @@ export const channelRouter = router({
         channel,
         token,
         appId: getAgoraAppId(),
-        uid: ctx.userId, // Pass the UID to the client
+        uid: ctx.userId,
       };
     }),
 
@@ -85,11 +76,7 @@ export const channelRouter = router({
       }
 
       // Find channel
-      const channel = await db
-        .selectFrom('channels')
-        .selectAll()
-        .where('id', '=', input.channelId)
-        .executeTakeFirst();
+      const channel = await channelRepository.findById(input.channelId);
 
       if (!channel) {
         throw new TRPCError({
@@ -107,14 +94,9 @@ export const channelRouter = router({
       }
 
       // Check participant limit
-      const participantCount = await db
-        .selectFrom('channel_participants')
-        .select(({ fn }) => [fn.count<number>('id').as('count')])
-        .where('channel_id', '=', input.channelId)
-        .where('left_at', 'is', null)
-        .executeTakeFirst();
-
-      if (participantCount && participantCount.count >= (channel.max_participants || 10)) {
+      const hasReachedCapacity = await channelRepository.hasReachedCapacity(input.channelId);
+      
+      if (hasReachedCapacity) {
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message: 'Channel is full',
@@ -122,25 +104,18 @@ export const channelRouter = router({
       }
 
       // Check if user already joined
-      const existingParticipant = await db
-        .selectFrom('channel_participants')
-        .selectAll()
-        .where('channel_id', '=', input.channelId)
-        .where('user_id', '=', ctx.userId)
-        .where('left_at', 'is', null)
-        .executeTakeFirst();
+      const alreadyJoined = await channelParticipantRepository.isActiveParticipant(
+        input.channelId,
+        ctx.userId
+      );
 
-      if (!existingParticipant) {
+      if (!alreadyJoined) {
         // Add as new participant
-        await db
-          .insertInto('channel_participants')
-          .values({
-            channel_id: input.channelId,
-            user_id: ctx.userId,
-            role: 'audience',
-            joined_at: new Date(),
-          })
-          .execute();
+        await channelParticipantRepository.addParticipant(
+          input.channelId,
+          ctx.userId,
+          'viewer'
+        );
       }
 
       // Generate token for audience
@@ -154,7 +129,7 @@ export const channelRouter = router({
         channel,
         token,
         appId: getAgoraAppId(),
-        uid: ctx.userId, // Pass the UID to the client
+        uid: ctx.userId,
       };
     }),
 
@@ -170,6 +145,8 @@ export const channelRouter = router({
         .optional()
     )
     .query(async ({ input }) => {
+      // Note: This query is complex with subquery, keeping direct db access for now
+      // Could be refactored to repository if needed
       let query = db
         .selectFrom('channels')
         .select([
@@ -209,11 +186,7 @@ export const channelRouter = router({
       })
     )
     .query(async ({ input }) => {
-      const channel = await db
-        .selectFrom('channels')
-        .selectAll()
-        .where('id', '=', input.channelId)
-        .executeTakeFirst();
+      const channel = await channelRepository.findById(input.channelId);
 
       if (!channel) {
         throw new TRPCError({
@@ -223,12 +196,7 @@ export const channelRouter = router({
       }
 
       // Get active participants
-      const participants = await db
-        .selectFrom('channel_participants')
-        .selectAll()
-        .where('channel_id', '=', input.channelId)
-        .where('left_at', 'is', null)
-        .execute();
+      const participants = await channelParticipantRepository.getActiveParticipants(input.channelId);
 
       return {
         channel,
@@ -253,11 +221,7 @@ export const channelRouter = router({
         });
       }
 
-      const channel = await db
-        .selectFrom('channels')
-        .selectAll()
-        .where('id', '=', input.channelId)
-        .executeTakeFirst();
+      const channel = await channelRepository.findById(input.channelId);
 
       if (!channel) {
         throw new TRPCError({
@@ -275,24 +239,10 @@ export const channelRouter = router({
       }
 
       // Update channel status
-      await db
-        .updateTable('channels')
-        .set({
-          status: 'ended',
-          ended_at: new Date(),
-        })
-        .where('id', '=', input.channelId)
-        .execute();
+      await channelRepository.endChannel(input.channelId);
 
       // Mark all participants as left
-      await db
-        .updateTable('channel_participants')
-        .set({
-          left_at: new Date(),
-        })
-        .where('channel_id', '=', input.channelId)
-        .where('left_at', 'is', null)
-        .execute();
+      await channelParticipantRepository.removeAllParticipants(input.channelId);
 
       return { success: true };
     }),
@@ -314,16 +264,13 @@ export const channelRouter = router({
         });
       }
 
-      // Find active participation
-      const participant = await db
-        .selectFrom('channel_participants')
-        .selectAll()
-        .where('channel_id', '=', input.channelId)
-        .where('user_id', '=', ctx.userId)
-        .where('left_at', 'is', null)
-        .executeTakeFirst();
+      // Check if user is active participant
+      const isActive = await channelParticipantRepository.isActiveParticipant(
+        input.channelId,
+        ctx.userId
+      );
 
-      if (!participant) {
+      if (!isActive) {
         throw new TRPCError({
           code: 'NOT_FOUND',
           message: 'You are not in this channel',
@@ -331,13 +278,7 @@ export const channelRouter = router({
       }
 
       // Mark as left
-      await db
-        .updateTable('channel_participants')
-        .set({
-          left_at: new Date(),
-        })
-        .where('id', '=', participant.id)
-        .execute();
+      await channelParticipantRepository.removeParticipant(input.channelId, ctx.userId);
 
       return { success: true };
     }),
