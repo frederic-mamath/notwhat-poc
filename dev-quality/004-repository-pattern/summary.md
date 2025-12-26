@@ -14,87 +14,157 @@ Create a clean separation between data access layer and business logic by introd
 - ✅ **Type Safety**: Strongly typed repository methods with clear interfaces
 - ✅ **Single Responsibility**: Each repository handles one entity type
 
-## What is the Repository Pattern?
+## What is the Repository Pattern? (Spring Data JPA Style)
 
-The Repository Pattern is a design pattern that creates an abstraction layer between the data access logic and business logic. Instead of writing database queries directly in routers, we create repository classes that encapsulate all data operations for a specific entity.
+The Repository Pattern provides an abstraction layer between your business logic (routers) and data access logic (database queries). We're using a **Spring Data JPA inspired approach** where each repository is a simple class with named query methods.
 
 ### Before (Current State):
 ```typescript
 // Router contains raw database queries
-export const shopRouter = router({
-  create: protectedProcedure.mutation(async ({ ctx, input }) => {
-    const shop = await db
-      .insertInto("shops")
-      .values({ name: input.name, ... })
+export const authRouter = router({
+  register: publicProcedure.mutation(async ({ input }) => {
+    const existingUser = await db
+      .selectFrom('users')
+      .select(['id'])
+      .where('email', '=', input.email)
+      .executeTakeFirst();
+    
+    if (existingUser) {
+      throw new TRPCError({ code: 'CONFLICT' });
+    }
+
+    const hashedPassword = await bcrypt.hash(input.password, 10);
+
+    const user = await db
+      .insertInto('users')
+      .values({ email: input.email, password: hashedPassword, ... })
       .returningAll()
       .executeTakeFirstOrThrow();
+    
     // Business logic mixed with data access
   })
 });
 ```
 
-### After (With Repository):
+### After (With Spring Data JPA Style Repository):
 ```typescript
-// Router delegates to repository
-export const shopRouter = router({
-  create: protectedProcedure.mutation(async ({ ctx, input }) => {
-    const shopData = mapCreateShopInboundDtoToShop(input, ctx.user.id);
-    const shop = await shopRepository.create(shopData);
-    return mapShopToShopOutboundDto(shop);
+// Router delegates to repository with named methods
+import { userRepository } from '../repositories';
+
+export const authRouter = router({
+  register: publicProcedure.mutation(async ({ input }) => {
+    // Check if email exists (Spring JPA style: existsByEmail)
+    const emailExists = await userRepository.existsByEmail(input.email);
+    if (emailExists) {
+      throw new TRPCError({ code: 'CONFLICT' });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(input.password, 10);
+
+    // Save user (Spring JPA style: save)
+    const user = await userRepository.save(
+      input.email,
+      hashedPassword,
+      input.firstName,
+      input.lastName
+    );
+
+    // Generate token
+    const token = generateToken(user.id);
+    
+    return { user: mapUserToUserOutboundDto(user), token };
   })
 });
 
 // Repository handles all data access
-class ShopRepository {
-  async create(data: CreateShopData): Promise<Shop> {
-    return db.insertInto("shops")
-      .values({ ...data, created_at: new Date(), updated_at: new Date() })
+class UserRepository {
+  async existsByEmail(email: string): Promise<boolean> {
+    // SQL: SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)
+    const result = await db
+      .selectFrom('users')
+      .select(['id'])
+      .where('email', '=', email)
+      .executeTakeFirst();
+    
+    return result !== undefined;
+  }
+
+  async save(email: string, hashedPassword: string, ...): Promise<User> {
+    // SQL: INSERT INTO users (...) VALUES (...)
+    return db
+      .insertInto('users')
+      .values({ email, password: hashedPassword, ... })
       .returningAll()
       .executeTakeFirstOrThrow();
   }
 }
 ```
 
+### Spring Data JPA Method Naming Conventions
+
+We follow Spring Data naming patterns:
+- `findById(id)` - Find single entity by ID
+- `findByEmail(email)` - Find by specific field
+- `findAll()` - Get all entities
+- `existsByEmail(email)` - Check if exists
+- `save(...)` - Create/update entity
+- `deleteById(id)` - Delete entity
+- `count()` - Count entities
+
+Each method contains **explicit Kysely SQL** so you know exactly what query runs.
+
 ## Progress Tracking
 | Phase | Description | Status | Estimated Time |
 |-------|-------------|--------|----------------|
-| Phase 1 | Architecture Design & Base Classes | ⏳ Pending | 2 hours |
-| Phase 2 | User & Auth Repository | ⏳ Pending | 2 hours |
-| Phase 3 | Shop Repository | ⏳ Pending | 2 hours |
-| Phase 4 | Product Repository | ⏳ Pending | 2 hours |
-| Phase 5 | Channel & Participant Repositories | ⏳ Pending | 2.5 hours |
-| Phase 6 | Refactor Routers & Testing | ⏳ Pending | 3 hours |
+| Phase 1 | UserRepository (Spring JPA Style) | ✅ Complete | 1.5 hours |
+| Phase 2 | Shop & Role Repositories | ⏳ Pending | 2 hours |
+| Phase 3 | Product Repositories | ⏳ Pending | 2 hours |
+| Phase 4 | Channel Repositories | ⏳ Pending | 2 hours |
+| Phase 5 | Vendor Promotion & Final Testing | ⏳ Pending | 2.5 hours |
 
-## Repositories to Create
+## Components/Files Affected
 
-### Phase 1: Base Infrastructure
-- `src/repositories/base/BaseRepository.ts` - Generic CRUD operations
-- `src/repositories/base/types.ts` - Shared repository types
-- `src/repositories/index.ts` - Export barrel file
+### ✅ Phase 1: UserRepository (COMPLETE)
+- ✅ `src/repositories/UserRepository.ts` - Created with Spring JPA style methods
+- ✅ `src/repositories/index.ts` - Export structure created
+- ✅ TypeScript builds successfully
+- ✅ Ready to refactor auth.ts router
 
-### Phase 2: User & Auth
-- `src/repositories/UserRepository.ts` - User CRUD operations
-  - `findById(id)`, `findByEmail(email)`, `create(data)`, `update(id, data)`
+### Phase 1: UserRepository (COMPLETE) ✅
+- `src/repositories/UserRepository.ts` - User operations
+  - `findById(id)`, `findByEmail(email)`, `existsByEmail(email)`
+  - `save(email, password, ...)`, `updateProfile(id, data)`
+  - `deleteById(id)`, `findAll()`, `count()`
 
-### Phase 3: Shop
+### Phase 2: Shop Repositories
 - `src/repositories/ShopRepository.ts` - Shop operations
-  - `create(data)`, `findById(id)`, `findByOwnerId(userId)`, `update(id, data)`, `delete(id)`
-- `src/repositories/UserShopRoleRepository.ts` - Shop role management
-  - `assignRole(userId, shopId, role)`, `getUserRole(userId, shopId)`, `findUsersByShop(shopId)`
+  - `findById(id)`, `findByOwnerId(userId)`, `findByUserWithRole(userId)`
+  - `save(data)`, `updateById(id, data)`, `deleteById(id)`
+- `src/repositories/UserShopRoleRepository.ts` - Role management
+  - `assignRole(userId, shopId, role)`, `getUserRole(userId, shopId)`
+  - `isShopOwner(userId, shopId)`, `hasShopAccess(userId, shopId)`
 
-### Phase 4: Product
+### Phase 3: Product Repositories
 - `src/repositories/ProductRepository.ts` - Product operations
-  - `create(data)`, `findById(id)`, `findByShopId(shopId)`, `update(id, data)`, `delete(id)`, `setActive(id, isActive)`
-- `src/repositories/ChannelProductRepository.ts` - Product-channel associations
+  - `findById(id)`, `findByShopId(shopId, activeOnly)`, `findAllActive()`
+  - `save(data)`, `updateById(id, data)`, `setActive(id, isActive)`
+- `src/repositories/ChannelProductRepository.ts` - Product-channel links
+  - `associate(channelId, productId)`, `remove(channelId, productId)`
+  - `isAssociated(channelId, productId)`, `findByChannelId(channelId)`
 
-### Phase 5: Channel
+### Phase 4: Channel Repositories
 - `src/repositories/ChannelRepository.ts` - Channel operations
-  - `create(data)`, `findById(id)`, `findActive()`, `update(id, data)`, `endChannel(id)`
+  - `findById(id)`, `findActive()`, `findByHost(hostId)`
+  - `save(data)`, `endChannel(id)`, `isActive(id)`
 - `src/repositories/ChannelParticipantRepository.ts` - Participant management
-  - `addParticipant(channelId, userId)`, `removeParticipant(channelId, userId)`, `getParticipants(channelId)`
+  - `addParticipant(channelId, userId, role)`, `removeParticipant(channelId, userId)`
+  - `getActiveParticipants(channelId)`, `isActiveParticipant(channelId, userId)`
 
-### Phase 6: Vendor Promotion
-- `src/repositories/VendorPromotionRepository.ts` - Vendor product promotions
+### Phase 5: Vendor Promotion
+- `src/repositories/VendorPromotionRepository.ts` - Promotions
+  - `promoteProduct(channelId, vendorId, productId)`
+  - `unpromoteProduct(promotionId)`, `getActivePromotions(channelId)`
 
 ## Benefits
 
@@ -148,13 +218,19 @@ src/
 - ✅ Repositories are testable in isolation
 
 ## Status
-⏳ **READY TO START** - All phases documented and ready for implementation
+⏳ **IN PROGRESS** - Phase 1 Complete (UserRepository implemented)
+
+## Next Steps
+Start Phase 2: Implement ShopRepository and UserShopRoleRepository
 
 ## Notes
-- This is a refactoring track - no new features added
+- Using **Spring Data JPA style** - named query methods with explicit SQL
+- No base class inheritance - simple classes with clear methods
+- Each method shows exact Kysely query being executed
+- Follows Spring naming conventions: `findById()`, `existsByEmail()`, `save()`
 - All existing functionality must continue to work
 - Changes are backward compatible
 - Each phase can be tested independently
 - Routers will become significantly smaller and more focused
-- Estimated total time: 13.5 hours across 6 phases
+- Estimated total time: 10 hours across 5 phases (reduced from original 13.5h)
 - Can be paused and resumed at any phase boundary
