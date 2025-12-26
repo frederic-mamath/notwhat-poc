@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { Context } from '../types/context';
-import { db } from '../db';
+import { userShopRoleRepository } from '../repositories';
 
 export async function requireShopOwner(
   ctx: Context,
@@ -13,15 +13,9 @@ export async function requireShopOwner(
     });
   }
 
-  const role = await db
-    .selectFrom('user_shop_roles')
-    .select(['role'])
-    .where('user_id', '=', ctx.user.id)
-    .where('shop_id', '=', shopId)
-    .where('role', '=', 'shop-owner')
-    .executeTakeFirst();
+  const isOwner = await userShopRoleRepository.isShopOwner(ctx.user.id, shopId);
 
-  if (!role) {
+  if (!isOwner) {
     throw new TRPCError({
       code: 'FORBIDDEN',
       message: 'Only shop owners can perform this action',
@@ -40,14 +34,9 @@ export async function requireShopAccess(
     });
   }
 
-  const role = await db
-    .selectFrom('user_shop_roles')
-    .select(['role'])
-    .where('user_id', '=', ctx.user.id)
-    .where('shop_id', '=', shopId)
-    .executeTakeFirst();
+  const hasAccess = await userShopRoleRepository.hasShopAccess(ctx.user.id, shopId);
 
-  if (!role) {
+  if (!hasAccess) {
     throw new TRPCError({
       code: 'FORBIDDEN',
       message: 'You do not have access to this shop',

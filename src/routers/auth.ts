@@ -1,6 +1,6 @@
 import { router, publicProcedure } from '../trpc';
 import { z } from 'zod';
-import { db } from '../db';
+import { userRepository } from '../repositories';
 import { hashPassword, verifyPassword, generateToken } from '../utils/auth';
 import { TRPCError } from '@trpc/server';
 
@@ -13,14 +13,10 @@ export const authRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      // Check if user exists
-      const existingUser = await db
-        .selectFrom('users')
-        .selectAll()
-        .where('email', '=', input.email)
-        .executeTakeFirst();
+      // Check if user exists using repository
+      const emailExists = await userRepository.existsByEmail(input.email);
 
-      if (existingUser) {
+      if (emailExists) {
         throw new TRPCError({
           code: 'CONFLICT',
           message: 'Email already registered',
@@ -29,18 +25,8 @@ export const authRouter = router({
 
       const hashedPassword = await hashPassword(input.password);
 
-      // Insert user
-      const user = await db
-        .insertInto('users')
-        .values({
-          email: input.email,
-          password: hashedPassword,
-          is_verified: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-        })
-        .returningAll()
-        .executeTakeFirstOrThrow();
+      // Create user using repository
+      const user = await userRepository.save(input.email, hashedPassword);
 
       const token = generateToken(user.id);
 
@@ -62,11 +48,8 @@ export const authRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const user = await db
-        .selectFrom('users')
-        .selectAll()
-        .where('email', '=', input.email)
-        .executeTakeFirst();
+      // Find user by email using repository
+      const user = await userRepository.findByEmail(input.email);
 
       if (!user) {
         throw new TRPCError({
@@ -104,11 +87,8 @@ export const authRouter = router({
       });
     }
 
-    const user = await db
-      .selectFrom('users')
-      .selectAll()
-      .where('id', '=', ctx.userId)
-      .executeTakeFirst();
+    // Find user by ID using repository
+    const user = await userRepository.findById(ctx.userId);
 
     if (!user) {
       throw new TRPCError({

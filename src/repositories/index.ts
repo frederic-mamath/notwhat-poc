@@ -13,7 +13,9 @@
 
 // Repository instances
 export { userRepository } from './UserRepository';
+export { shopRepository } from './ShopRepository';
+export { userShopRoleRepository } from './UserShopRoleRepository';
 
 // More repositories will be added in later phases:
-// export { shopRepository } from './ShopRepository';
 // export { productRepository } from './ProductRepository';
+// export { channelRepository } from './ChannelRepository';
