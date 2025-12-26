@@ -21,7 +21,7 @@ export default function Landing() {
           <div className="text-center space-y-6 md:space-y-8">
             <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4 md:mb-6">
               <Video className="size-12 sm:size-14 md:size-16 text-primary" />
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold">NoWhat</h1>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold">WhyNot</h1>
             </div>
             
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
@@ -48,7 +48,7 @@ export default function Landing() {
       <div className="py-12 sm:py-16 md:py-24 bg-accent/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3 md:mb-4">Why Choose NoWhat?</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 md:mb-4">Why Choose WhyNot?</h2>
             <p className="text-sm sm:text-base text-muted-foreground">Everything you need for live streaming</p>
           </div>
 
@@ -101,7 +101,7 @@ export default function Landing() {
           <Users className="size-12 sm:size-14 md:size-16 text-primary mx-auto mb-4 sm:mb-6" />
           <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Ready to get started?</h2>
           <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8">
-            Join thousands of users already streaming live on NoWhat
+            Join thousands of users already streaming live on WhyNot
           </p>
           <Button size="lg" className="w-full sm:w-auto" asChild>
             <Link to="/register">

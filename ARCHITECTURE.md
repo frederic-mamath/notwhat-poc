@@ -1,8 +1,8 @@
-# NoWhat - Architecture & Design Patterns
+# WhyNot - Architecture & Design Patterns
 
 ## Overview
 
-NoWhat is a full-stack authentication application using a type-safe API architecture with clear separation between frontend and backend concerns.
+WhyNot is a full-stack authentication application using a type-safe API architecture with clear separation between frontend and backend concerns.
 
 **Frontend Architecture**: See [client/ARCHITECTURE.md](client/ARCHITECTURE.md) for UI and component structure.
 
