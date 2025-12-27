@@ -9,6 +9,8 @@ export interface Database {
   products: ProductsTable;
   channel_products: ChannelProductsTable;
   vendor_promoted_products: VendorPromotedProductsTable;
+  roles: RolesTable;
+  user_roles: UserRolesTable;
 }
 
 export interface UsersTable {
@@ -87,6 +89,21 @@ export interface VendorPromotedProductsTable {
   unpromoted_at: Date | null;
 }
 
+export interface RolesTable {
+  id: Generated<number>;
+  name: string;
+  created_at: Date;
+}
+
+export interface UserRolesTable {
+  id: Generated<number>;
+  user_id: number;
+  role_id: number;
+  activated_by: number | null;
+  activated_at: Date | null;
+  created_at: Date;
+}
+
 export type User = Selectable<UsersTable>;
 export type Shop = Selectable<ShopsTable>;
 export type Product = Selectable<ProductsTable>;
@@ -95,4 +112,6 @@ export type ChannelParticipant = Selectable<ChannelParticipantsTable>;
 export type UserShopRole = Selectable<UserShopRolesTable>;
 export type ChannelProduct = Selectable<ChannelProductsTable>;
 export type VendorPromotedProduct = Selectable<VendorPromotedProductsTable>;
+export type Role = Selectable<RolesTable>;
+export type UserRole = Selectable<UserRolesTable>;
 

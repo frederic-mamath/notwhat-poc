@@ -15,23 +15,21 @@ Replace shop-specific role system with platform-level roles (BUYER, SELLER) and 
 ## Progress Tracking
 | Phase | Description | Status |
 |-------|-------------|--------|
-| Phase 1 | Create roles and user_roles tables with migration | ⏳ |
+| Phase 1 | Create roles and user_roles tables with migration | ✅ |
 | Phase 2 | Create repositories for roles and user_roles | ⏳ |
 | Phase 3 | Create role router and endpoints | ⏳ |
 | Phase 4 | Add role check to channel creation | ⏳ |
 | Phase 5 | Add "Become a Seller" button to navbar | ⏳ |
-| Phase 6 | Seed default BUYER role for existing users | ⏳ |
+| Phase 6 | Seed default BUYER role for existing users | ✅ |
 
 ## Components/Files Affected
 
 ### ✅ Completed
-- None
+- `migrations/008_create_roles.ts` - Create roles table with BUYER/SELLER
+- `migrations/009_create_user_roles.ts` - Create user_roles table with activation tracking
+- `src/db/types.ts` - Added Role and UserRole types
 
 ### ⏳ Remaining
-- `migrations/008_create_roles.ts` - Create roles table
-- `migrations/009_create_user_roles.ts` - Create user_roles table  
-- `migrations/010_seed_default_roles.ts` - Seed BUYER and SELLER roles
-- `src/db/types.ts` - Add Role and UserRole types
 - `src/repositories/RoleRepository.ts` - Role repository with @Query methods
 - `src/repositories/UserRoleRepository.ts` - UserRole repository with @Query methods
 - `src/routers/role.ts` - Role request endpoint
@@ -143,6 +141,6 @@ AND ur.role_id = (SELECT id FROM roles WHERE name = 'SELLER');
 ```
 
 ## Status
-Current overall status: ⏳ NOT STARTED
+Current overall status: 🟡 IN PROGRESS
 
-**Next Action**: Begin Phase 1 - Database migration
+**Next Action**: Begin Phase 2 - Create repositories
