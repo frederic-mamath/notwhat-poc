@@ -20,3 +20,5 @@ export { channelProductRepository } from './ChannelProductRepository';
 export { channelRepository } from './ChannelRepository';
 export { channelParticipantRepository } from './ChannelParticipantRepository';
 export { vendorPromotedProductRepository } from './VendorPromotedProductRepository';
+export { roleRepository } from './RoleRepository';
+export { userRoleRepository } from './UserRoleRepository';

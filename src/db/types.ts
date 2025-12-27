@@ -101,7 +101,7 @@ export interface UserRolesTable {
   role_id: number;
   activated_by: number | null;
   activated_at: Date | null;
-  created_at: Date;
+  created_at: Generated<Date>;
 }
 
 export type User = Selectable<UsersTable>;
